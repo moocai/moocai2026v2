@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Terminal, Play, CheckCircle2, Zap, Save, Trophy, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Box, Typography, Button, IconButton, alpha, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, Button, IconButton, Stack, alpha, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
 import { api } from '../../services/api';
 import { useTranslation } from 'react-i18next';
 
@@ -154,6 +154,14 @@ export default function LessonPage() {
     }, 800);
   };
 
+  const handleOpenConsole = () => {
+    const newWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!newWindow) { setConsoleOutput(p => [...p, "⚠️ Permet les finestres emergents per obrir la consola"]); return; }
+    const lines = consoleOutput.length > 0 ? consoleOutput : ["// Esperant execució..."];
+    newWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Consola - ${courseId}</title><style>body{margin:0;font-family:'Fira Code',Consolas,monospace;background:#000;color:#b5e853;padding:20px;font-size:14px;line-height:1.6;white-space:pre-wrap}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}</style></head><body>${lines.map(l => l.replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('<br>')}</body></html>`);
+    newWindow.document.close();
+  };
+
   if (loading) return <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}><CircularProgress color="secondary" /></Box>;
   if (!mounted || !course || !baseLesson) return null;
 
@@ -261,7 +269,10 @@ export default function LessonPage() {
         <IconButton onClick={handlePrevious} disabled={currentLessonIndex <= 0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
           <ChevronLeft size={20}/>
         </IconButton>
-        <Button onClick={handleRunTests} variant="contained" fullWidth sx={{fontWeight: 900, borderRadius: 1, fontSize: 13 }}>{t('lesson.run')}</Button>
+        <Stack direction="row" spacing={1} sx={{ flex: 1 }}>
+          <Button onClick={handleOpenConsole} variant="text" sx={{ fontWeight: 700, borderRadius: 1, fontSize: 11, minWidth: 0, px: 1, color: 'text.secondary' }}><Terminal size={14}/></Button>
+          <Button onClick={handleRunTests} variant="contained" fullWidth sx={{fontWeight: 900, borderRadius: 1, fontSize: 13 }}>{t('lesson.run')}</Button>
+        </Stack>
         <IconButton onClick={handleNext} disabled={!course} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 1 }}>
           <ChevronRight size={20}/>
         </IconButton>
@@ -348,7 +359,10 @@ export default function LessonPage() {
               )}
               {currentMode === 'drill' && isTimerActive && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: alpha('#6366f1',0.3), px: 1, borderRadius: 0.5 }}><Typography sx={{ fontSize: 10, color: '#a5b4fc' }}>{timer}s</Typography></Box>}
             </Box>
-            <Button onClick={handleRunTests} startIcon={<Play size={10} fill="#000"/>} sx={{ bgcolor: '#fff', color: '#000', height: 28, fontSize: 10, fontWeight: 700, px: 2, borderRadius: 1 }}>{t('lesson.run')}</Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button onClick={handleOpenConsole} startIcon={<Terminal size={10}/>} sx={{ bgcolor: 'transparent', color: '#888', height: 28, fontSize: 10, fontWeight: 600, px: 1.5, borderRadius: 1, border: '1px solid #444', '&:hover': { bgcolor: '#333', color: '#fff' } }}>Consola</Button>
+              <Button onClick={handleRunTests} startIcon={<Play size={10} fill="#000"/>} sx={{ bgcolor: '#fff', color: '#000', height: 28, fontSize: 10, fontWeight: 700, px: 2, borderRadius: 1 }}>{t('lesson.run')}</Button>
+            </Box>
           </Box>
           <motion.div key={fadeKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ flex: 1, display: 'flex', position: 'relative' }}>
             {courseId === 'Python' && showResultModal ? (
