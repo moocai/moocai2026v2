@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
+    "@react-spring/web": "^10.1.0",
     "axios": "^1.15.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "canvas-confetti": "^1.9.2",
@@ -43,6 +44,6 @@
     "vite": "^6.0.0"
   },
   "overrides": {
-  "react-is": "19.0.0"
-}
+    "react-is": "19.0.0"
+  }
 }

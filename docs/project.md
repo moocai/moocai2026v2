@@ -1,21 +1,22 @@
 # MOOC React 2026
-**Última actualització: 1 de juny de 2026**
+**Última actualització: 3 de juny de 2026**
 ---
 
 ## 1. Tecnologies i Dependències
 
 | Categoria | Llibreria | Versió | Ús |
 |-----------|-----------|--------|-----|
-| **Framework** | React | ^18.3.1 | Components i hooks |
+| **Framework** | React | ^19.2.7 | Components i hooks |
 | **Build** | Vite | ^6.0.0 | Dev server i bundling |
 | **UI** | @mui/material | ^9.0.0 | Components Material Design + CssBaseline |
 | **Estils** | @emotion/react, @emotion/styled | ^11.14.0 / ^11.14.1 | Estils CSS-in-JS |
 | **Icons** | @mui/icons-material + lucide-react | ^9.0.0 / ^0.577.0 | Icones |
-| **Routing** | react-router-dom | ^6.30.3 | Navegació SPA (v7 futures flags) |
-| **Animacions** | framer-motion | ^12.38.0 | Animacions declaratives |
+| **Routing** | react-router-dom | ^6.30.3 | Navegació SPA (v7 future flags) |
+| **Animacions** | framer-motion + @react-spring/web | ^12.38.0 / ^10.1.0 | Animacions declaratives |
 | **Internacionalització** | i18next + react-i18next + i18next-browser-languagedetector | ^26.0.6 / ^17.0.4 / ^8.2.1 | Multiidioma (CA, ES, EN) |
 | **HTTP** | axios | ^1.15.0 | Peticions a API REST |
 | **Confetti** | canvas-confetti | ^1.9.2 | Animació en completar lliçons |
+| **React Compiler** | babel-plugin-react-compiler | ^1.0.0 | Optimització React 19 |
 | **Util** | clsx, class-variance-authority | ^2.1.1 / ^0.7.1 | Classes condicionals |
 | **Util** | tailwind-merge, tailwindcss-animate, tw-animate-css | ^3.5.0 / ^1.0.7 / ^1.4.0 | Utilitats Tailwind (instal·lades) |
 | **Tipus** | TypeScript | ^5.5.0 | Tipat estàtic |
@@ -27,7 +28,6 @@
 
 ```
 src/
-├── App.css                         # Estils legacy (.counter, .hero, ticks, etc.)
 ├── App.tsx                         # Router principal amb rutes (Home, Courses, Dashboard)
 ├── env.d.ts                        # Declaracions de tipus per a fitxers estàtics (.css, .svg, .png, .webp)
 ├── i18n.ts                         # Configuració i18next (punt d'entrada, duplicat de i18n/index.ts)
@@ -35,10 +35,10 @@ src/
 ├── main.tsx                        # Punt d'entrada (BrowserRouter + StyledEngineProvider + ThemeProvider)
 │
 ├── components/                     # Components reutilitzables
-│   ├── CourseCard.tsx              # Targeta de curs (Home)
+│   ├── CourseCard.tsx              # Targeta de curs (Home) amb motion animations
 │   ├── Footer.tsx                  # Peu de pàgina multi-columna
 │   ├── Header.tsx                  # Barra de navegació sticky amb menú mòbil overlay
-│   ├── Hero.tsx                    # Secció hero amb typewriter + stats + ParticlesBackground
+│   ├── Hero.tsx                    # Secció hero amb typewriter + stats (lazy initializer) + ParticlesBackground
 │   ├── LanguageSwitcher.tsx        # Canviador d'idioma (CA/ES/EN)
 │   ├── ParticlesBackground.tsx     # Fons interactiu amb Canvas (partícules + connexió)
 │   ├── ThemeToggleButton.tsx       # Botó mode clar/fosc (Sun/Moon icons)
@@ -60,15 +60,15 @@ src/
 │
 ├── features/                       # Components agrupats per funció
 │   ├── student/
-│   │   ├── CourseCard.tsx          # Card de curs al dashboard (expansible, progress icons)
+│   │   ├── CourseCard.tsx          # Card de curs al dashboard (expansible, progress icons, motion accordion)
 │   │   ├── CourseExpandedContent.tsx # Contingut expandit (tabs syllabus/activities)
 │   │   ├── CourseIcon.tsx          # Icona dinàmica Lucide per nom de curs
 │   │   ├── Login.tsx               # Formulari login amb role toggle + create user + student grid
-│   │   ├── ProgressOverview.tsx    # Barres LinearProgress per curs
-│   │   ├── RankingCard.tsx         # Rànquing amb Tabs per curs, usuari actiu destacat
+│   │   ├── ProgressOverview.tsx    # Barres LinearProgress per curs (hoverBg light/dark)
+│   │   ├── RankingCard.tsx         # Rànquing amb Tabs per curs, usuari actiu destacat (hoverBg light/dark)
 │   │   ├── ScrollIndicator.tsx     # Indicador scroll mòbil (chevrons animats)
 │   │   ├── StudentCard.tsx         # Targeta login per PIN amb delete confirmation flow
-│   │   ├── StudentProfileCard.tsx  # Perfil (avatar, nom, punts, logout)
+│   │   ├── StudentProfileCard.tsx  # Perfil (avatar, nom, punts, logout, hoverBg light/dark)
 │   │   └── types.ts                # Interfícies Student, Lesson, Topic, Course
 │   │
 │   └── teacher/                    # (TOT BUIT)
@@ -91,18 +91,18 @@ src/
 │   └── index.ts                    # Configuració i18next (LanguageDetector, fallback 'ca')
 │
 ├── layouts/                        # Layouts per a rutes
-│   ├── MainLayout.tsx              # Header + Outlet + Footer
+│   ├── MainLayout.tsx              # Header + Outlet
 │   └── TeacherLayout.tsx           # (BUIT)
 │
-├── middleware/                      # (BUIT - directori buit)
+├── middleware/                      # (BUIT)
 │
 ├── pages/                          # Pàgines de l'aplicació
-│   ├── Home.tsx                    # Landing: Hero, cursos (courseService), features, Footer
+│   ├── Home.tsx                    # Landing: Hero, cursos (courseService), features animades, Footer
 │   ├── courses/
 │   │   ├── ${courseId}/
 │   │   │   └── ${lesson.id}/
 │   │   │       └── LessonTopic.tsx # Vista teòrica: sidebar lliçons + explicació + challenge
-│   │   ├── CourseLessons.tsx       # 3 columnes: syllabus accordion + contingut + "On this page"
+│   │   ├── CourseLessons.tsx       # 3 columnes: syllabus accordion (motion animat) + contingut + "On this page"
 │   │   └── LessonPage.tsx          # Editor codi interactiu (4 modes, tests, confetti, submissions)
 │   ├── dashboards/
 │   │   └── StudentDashboard.tsx    # Login/creació usuaris, perfil, progrés, cursos, rànquing
@@ -119,7 +119,7 @@ src/
 │   └── teacherService.ts           # (BUIT)
 │
 ├── theme/
-│   └── Theme.ts                    # getTheme(mode) per a MUI (primary #8400ff, secondary #ec4899)
+│   └── theme.ts                    # getTheme(mode) per a MUI (primary #8400ff, secondary #ec4899)
 │
 ├── types/
 │   └── index.ts                    # Interfícies globals (Course, Lesson, Student, etc.)
@@ -135,7 +135,7 @@ src/
 | Fitxer | Propòsit |
 |--------|----------|
 | `index.html` | HTML entry point (meta description "LEARN LANGUAGES 2026") |
-| `vite.config.ts` | Configuració Vite + React plugin + `@` alias + manualChunks + sourcemap |
+| `vite.config.ts` | Configuració Vite + React plugin + `@` alias + manualChunks + sourcemap + babel-plugin-react-compiler |
 | `tsconfig.json` | Configuració TypeScript amb `@/*` path alias |
 | `package.json` | Dependències i scripts (dev, build, preview) |
 | `.gitignore` | Fitxers ignorats per git |
@@ -168,9 +168,9 @@ src/
 | Fitxer | Exportacions | Funcions clau |
 |--------|-------------|---------------|
 | `Header.tsx` | `Header` | `scrollToDynamic(desktopPx, mobilePx)`, `handleLogout()`, `checkAuth()`, menú mòbil overlay amb AnimatePresence |
-| `Hero.tsx` | `Hero (default)` | Typewriter animat (React, Python, SpringBoot, ML), stats de courses/students locals, scroll chevrons |
+| `Hero.tsx` | `Hero (default)` | Typewriter animat (React, Python, SpringBoot, ML), stats amb lazy initializer, scroll chevrons |
 | `Footer.tsx` | `Footer` | `FooterLink` (component intern), any dinàmic, 4 columnes (logo, explore, community, connect) |
-| `CourseCard.tsx` | `CourseCard` | `handleEnroll()`, `getLocalizedText()`, disabled overlay "PROPERAMENT" |
+| `CourseCard.tsx` | `CourseCard` | `handleEnroll()`, `getLocalizedText()`, disabled overlay "PROPERAMENT", motion animations |
 | `ParticlesBackground.tsx` | `ParticlesBackground (default)` | Classe `Particle` amb `draw()` i `update()`, `connect()`, detecció dark/light mode |
 | `ThemeToggleButton.tsx` | `ThemeToggleButton` | Alterna mode clar/fosc via `useThemeMode()` (Sun/Moon icons) |
 | `LanguageSwitcher.tsx` | `LanguageSwitcher` | Canvia idioma via `i18n.changeLanguage()` |
@@ -209,11 +209,11 @@ src/
 | `CourseCard.tsx` | `CourseCard` | `onToggle`, `onResetCourse`, `onNavigate`, rep `course`, `isExpanded`, `dbProgress`, disabled overlay |
 | `CourseExpandedContent.tsx` | `CourseExpandedContent` | Tabs syllabus/activities, llista lliçons amb icones (BookOpen/CheckCircle/PlayCircle), posicionament absolut |
 | `CourseIcon.tsx` | `CourseIcon` | Retorna icona Lucide (Terminal, Globe, Cpu, Layers, Database, Code2) segons el nom del curs |
-| `ProgressOverview.tsx` | `ProgressOverview` | Barres `LinearProgress` per curs amb percentatge |
-| `RankingCard.tsx` | `RankingCard` | Tabs per curs, llistat ordenat per progrés, usuari actiu destacat, icones Trophy |
+| `ProgressOverview.tsx` | `ProgressOverview` | Barres `LinearProgress` per curs amb percentatge (hoverBg light/dark) |
+| `RankingCard.tsx` | `RankingCard` | Tabs per curs, llistat ordenat per progrés, usuari actiu destacat, icones Trophy (hoverBg light/dark) |
 | `ScrollIndicator.tsx` | `ScrollIndicator` | 3 chevrons animats a cada costat (només mòbil) |
 | `StudentCard.tsx` | `StudentCard` | Login per PIN, delete confirmation flow amb PIN (TextField + confirm/cancel), animació error shake |
-| `StudentProfileCard.tsx` | `StudentProfileCard` | Avatar, nom, punts totals, botó logout, LinearProgress loading bar |
+| `StudentProfileCard.tsx` | `StudentProfileCard` | Avatar, nom, punts totals, botó logout, LinearProgress loading bar (hoverBg light/dark) |
 
 ### Features Teacher (`src/features/teacher/`)
 
@@ -224,8 +224,8 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 | Fitxer | Exportació | Funcions clau |
 |--------|-----------|---------------|
-| `Home.tsx` | (default) | Carrega cursos via `courseService.getAllCourses()` amb loading/error, 6 feature cards localitzades, visibility change listener |
-| `courses/CourseLessons.tsx` | (default) | Layout 3 columnes: syllabus accordion + contingut (breadcrumb, course info, subTopics amb code examples) + "On this page" anchor links. Drawer mòbil per syllabus |
+| `Home.tsx` | (default) | Carrega cursos via `courseService.getAllCourses()` amb loading/error, 6 feature cards animades (containerVariants + cardVariants amb stagger i direccional), visibility change listener |
+| `courses/CourseLessons.tsx` | (default) | Layout 3 columnes: syllabus accordion (motion.div amb slide-in seqüencial) + contingut (breadcrumb, course info, subTopics amb code examples) + "On this page" anchor links. Drawer mòbil per syllabus |
 | `courses/LessonPage.tsx` | (default) | Editor codi interactiu. 4 modes (normal/drill/assist/hackathon), tests (cleanUser.includes(cleanSol)), confetti, submissions, localStorage progress. Mostra submissions d'altres estudiants per Python |
 | `courses/${courseId}/${lesson.id}/LessonTopic.tsx` | (default) | Sidebar llista lliçons (filtrada a l'actual), explicació teòrica, challenge box, exercise instructions, navegació prev/next/go-to-activity |
 | `dashboards/StudentDashboard.tsx` | (default) | Login/create-user flow, profile card, progress overview, course grid expansible, ranking per tabs. Integra dades locals + API progress sync |
@@ -247,7 +247,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 | Fitxer | Exportacions | Colors |
 |--------|-------------|--------|
-| `Theme.ts` | `getTheme(mode)` | **Dark**: primary `#8400ff` (porpra), secondary `#ec4899` (rosa), bg `#0a0a0a`; **Light**: primary `#8400ff`, secondary `#ec4899`, bg `#f5f5f5`. Font Inter, borderRadius 12px |
+| `theme.ts` | `getTheme(mode)` | **Dark**: primary `#8400ff` (porpra), secondary `#ec4899` (rosa), bg `#0a0a0a`; **Light**: primary `#8400ff`, secondary `#ec4899`, bg `#f5f5f5`. Font Inter, borderRadius 12px |
 
 ### Hooks (`src/hooks/`)
 
@@ -284,7 +284,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 1. **`src/data/courses.ts`** - Font principal de dades de cursos (usada per CourseLessons, LessonTopic, StudentDashboard, Hero stats)
 2. **`src/data/exercises.ts`** - Dades d'exercicis (usada per LessonPage, LessonTopic)
 3. **`src/data/students.ts`** - Estudiants predefinits (usada per StudentDashboard/Login)
-4. **API REST** - `http://localhost:8080/api` (amb fallback a dades locals si no respon per courseService)
+4. **API REST** - `API ISAAC` (amb fallback a dades locals si no respon per courseService)
 5. **localStorage** - Claus:
    - `mooc_global_progress` - Progrés de lliçons completades (`{courseId_lessonId: true}`)
    - `code_{userId}_{courseId}_{lessonId}` - Codi guardat per usuari/lliçó
@@ -346,22 +346,25 @@ Login
 ## 5. Estat Actual del Projecte
 
 ### Implementat (Funcional)
-- ✅ Components UI (Header amb menú mòbil, Hero amb typewriter, Footer, CourseCard, ParticlesBackground)
+- ✅ Components UI (Header amb menú mòbil, Hero amb typewriter i lazy initializer, Footer, CourseCard amb motion, ParticlesBackground)
 - ✅ Context d'idioma (I18nContext) + suport multiidioma (CA/ES/EN)
 - ✅ Context de tema (ThemeContext) + mode clar/fosc (persistit a localStorage)
 - ✅ Context d'autenticació (AuthContext) - Provider creat però NO connectat a main.tsx
 - ✅ StudentDashboard complet (login/create-user, perfil, progrés, rànquing, cursos expansibles)
-- ✅ CourseLessons (layout 3 columnes amb syllabus accordion + contingut + anchor links, drawer mòbil)
+- ✅ CourseLessons (layout 3 columnes amb syllabus accordion animat + contingut + anchor links, drawer mòbil)
 - ✅ LessonPage (editor codi amb 4 modes, tests per inclusió, confetti, submissions, localStorage)
 - ✅ LessonTopic (vista teòrica amb sidebar lliçons + explicació + challenge + navegació)
 - ✅ Serveis API amb fallback local (courseService) o sense (authService)
 - ✅ Dades estàtiques completes (courses.ts 13 lliçons Python, exercises.ts 17 exercicis, students.ts)
 - ✅ Utils (formatters, validators, sx compositor)
 - ✅ `main.tsx` i `App.tsx` - Connectats amb BrowserRouter (v7 flags), StyledEngineProvider, ThemeProvider
-- ✅ `MainLayout.tsx` - En ús com a layout route (Header + Outlet + Footer)
-- ✅ `vite.config.ts` - Configurat amb `@` alias, manualChunks, sourcemap
-- ✅ Theme personalitzat (colors porpra #8400ff / rosa #ec4899)
+- ✅ `MainLayout.tsx` - En ús com a layout route (Header + Outlet)
+- ✅ `vite.config.ts` - Configurat amb `@` alias, manualChunks, sourcemap, babel-plugin-react-compiler
+- ✅ Theme personalitzat (colors porpra #8400ff / rosa #ec4899) a `theme.ts`
 - ✅ Gestió d'estudiants locals (crear, eliminar, persistència)
+- ✅ Home features animades amb containerVariants + cardVariants (stagger, direccional)
+- ✅ CourseLessons sidebar accordions amb motion slide-in seqüencial
+- ✅ Adaptació hoverBg a StudentProfileCard, ProgressOverview, RankingCard per mode light/dark
 
 ### Per Implementar
 - ❌ Pàgines de teacher (Courses, Dashboard, Exercises, Students)
@@ -378,9 +381,10 @@ Login
 - `api.ts` té un sistema híbrid (localStorage + API) per al progrés
 - `main.tsx` no inclou `AuthProvider` ni `I18nProvider` (només BrowserRouter + StyledEngineProvider + ThemeProvider)
 - `i18n.ts` (arrel) i `i18n/index.ts` són duplicats (ambdós configuren i18next)
-- `public/data.json` ha estat eliminat (ja no existeix)
 - Tots els components de StudentDashboard estan desacoblats a `features/student/`
 - El projecte utilitza Vite 6 amb `@` path alias
+- `ThemeContext` i `I18nContext` usen `use(Context)` de React 19 en lloc de `useContext(Context)`
+- `babel-plugin-react-compiler` està configurat a `vite.config.ts` amb `target: "19"`
 
 ---
 
@@ -408,13 +412,14 @@ Login
 |----------------|-----|
 | **react-router-dom** | Navegació SPA (Links, Routes, useNavigate, useParams, useLocation) |
 | **i18next + react-i18next** | Traduccions (useTranslation, i18n.changeLanguage) |
-| **framer-motion** | Animacions (motion.div, AnimatePresence, whileInView, whileHover) |
+| **framer-motion + @react-spring/web** | Animacions (motion.div, AnimatePresence, whileInView, whileHover, spring) |
 | **axios** | Peticions HTTP als endpoints del backend |
 | **canvas-confetti** | Animació de confeti en completar lliçons |
-| **MUI (Material UI v9)** | Sistema de components (ThemeProvider, CssBaseline, Box, Card, Button, etc.) |
+| **MUI (Material UI v9)** | Sistema de components (ThemeProvider, CssBaseline, Box, Card, Button, Accordion, etc.) |
 | **localStorage API** | Persistència de: progrés, codi, punts, usuaris, tema, idioma, submissions, IDs eliminats |
 | **Canvas API** | Fons interactiu de partícules (ParticlesBackground) |
 | **window.dispatchEvent** | Comunicació entre components (auth-state-change, lessonProgressUpdated) |
+| **babel-plugin-react-compiler** | Optimització React 19 a nivell compilador |
 
 ---
 
@@ -449,3 +454,4 @@ npm run preview      # Previsualitzar producció
 | manualChunks | `vendor` (react, react-dom, react-router-dom), `ui-library` (MUI, Emotion), `animations` (framer-motion) |
 | watch.usePolling | `true` |
 | optimizeDeps.include | MUI, Emotion, framer-motion, react-resizable-panels |
+| babel-plugin-react-compiler | `{ target: "19" }` |

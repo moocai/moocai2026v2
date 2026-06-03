@@ -11,9 +11,9 @@ const getLocalFallback = async (): Promise<{ courses: Course[]; students: Studen
     description: c.description.en,
     image: c.image,
     disabled: c.disabled,
-    level: 'Bàsic',
-    duration: '8 hores',
-    instructor: 'Professor',
+    level: '',
+    duration: '',
+    instructor: '',
     icon: c.icon,
     logoSize: c.logoSize,
     content: c.content.map(l => ({

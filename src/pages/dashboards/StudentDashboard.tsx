@@ -224,7 +224,7 @@ export default function StudentDashboard() {
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           onClick={() => setExpandedCourse(null)}
-                          style={{ position: 'fixed', inset: 0, zIndex: 40, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)' }}
+                          style={{ position: 'fixed', inset: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}
                         />
                       )}
                     </AnimatePresence>
@@ -245,7 +245,7 @@ export default function StudentDashboard() {
                             onTabChange={setActiveTab}
                             dbProgress={dbProgress}
                             getCourseTopics={getCourseTopics}
-                            onNavigate={(path) => navigate(path)}
+                            onNavigate={(path: string) => navigate(path)}
                           />
                         </Grid>
                       ))}

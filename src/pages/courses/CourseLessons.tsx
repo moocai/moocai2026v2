@@ -85,7 +85,6 @@ export default function CourseLessons() {
   return (
     <Box sx={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, bgcolor: 'background.default', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', height: '100%' }}>
-
         {/* LEFT SIDEBAR - Accordion Syllabus */}
         <Box sx={{
           width: { md: '24%', lg: '22%', xl: '18%' },
@@ -101,15 +100,20 @@ export default function CourseLessons() {
           <Box sx={{ px: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <BookOpen size={30} color={theme.palette.primary.main} />
-              <Typography sx={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'text.secondary' }}>
+              <Typography sx={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3em', color: 'text.secondary' }}>
                 {t('lesson.syllabus')}
               </Typography>
             </Box>
           </Box>
           {course.content?.map((lesson, index) => (
-            <Accordion key={lesson.id} disableGutters elevation={0} sx={{
+            <motion.div
+              key={lesson.id}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.2, type: 'spring', stiffness: 80, damping: 5 }}
+            >
+            <Accordion disableGutters elevation={0} sx={{
               '&:before': { display: 'none' },
-              borderBottom: '1px solid',
               borderColor: 'divider',
               bgcolor: 'transparent',
             }}>
@@ -119,10 +123,7 @@ export default function CourseLessons() {
                 '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.5) }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}>
-                    {String(index + 1).padStart(2, '0')}
-                  </Typography>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.3, flex: 1 }}>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.3, flex: 1, letterSpacing: '0.15em'}}>
                     {getText(lesson.title)}
                   </Typography>
                   {progress[`${courseId}_${lesson.id}`] && (
@@ -147,6 +148,7 @@ export default function CourseLessons() {
                 </Stack>
               </AccordionDetails>
             </Accordion>
+            </motion.div>
           ))}
         </Box>
 
@@ -185,7 +187,7 @@ export default function CourseLessons() {
             <Box sx={{ px: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BookOpen size={30} color={theme.palette.primary.main} />
-                <Typography sx={{ fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'text.secondary', flex: 1 }}>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3em', color: 'text.secondary', flex: 1 }}>
                   {t('lesson.syllabus')}
                 </Typography>
                 <Box component="button" onClick={() => setMobileSyllabusOpen(false)} sx={{ border: 'none', bgcolor: 'transparent', cursor: 'pointer', display: 'flex', p: 0.5, borderRadius: 1, color:'red'}}>
@@ -251,7 +253,7 @@ export default function CourseLessons() {
             <Typography variant="h2" sx={{
               fontWeight: 900,
               fontSize: { xs: '2rem', md: '3rem' },
-              letterSpacing: '-0.03em',
+              letterSpacing: '0.03em',
               mb: 2,
               lineHeight: 1.1
             }}>
@@ -285,7 +287,7 @@ export default function CourseLessons() {
                     <Typography variant="h4" sx={{
                       fontWeight: 800,
                       fontSize: { xs: '1.3rem', md: '1.5rem' },
-                      letterSpacing: '-0.02em'
+                      letterSpacing: '0.02em'
                     }}>
                       {getText(lesson.title)}
                     </Typography>
@@ -307,7 +309,7 @@ export default function CourseLessons() {
                         <Box sx={{ bgcolor: '#1a1d23', border: '1px solid', borderColor: '#30363d', borderRadius: 2, overflow: 'hidden' }}>
                           <Box sx={{ px: 2.5, py: 1.25, bgcolor: '#23272f', borderBottom: '1px solid #30363d', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <Code2 size={14} color="#8b949e" />
-                            <Typography sx={{ fontSize: '0.65rem', color: '#8b949e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <Typography sx={{ fontSize: '0.65rem', color: '#8b949e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em' }}>
                               Example
                             </Typography>
                           </Box>
@@ -355,7 +357,7 @@ export default function CourseLessons() {
             fontSize: '0.65rem',
             fontWeight: 700,
             textTransform: 'uppercase',
-            letterSpacing: '0.1em',
+            letterSpacing: '0.4em',
             color: 'text.secondary',
             mb: 2
           }}>

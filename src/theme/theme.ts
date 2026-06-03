@@ -15,7 +15,7 @@ export function getTheme(mode: ThemeMode): Theme {
         : {
             primary: { main: '#8400ff' },
             secondary: { main: '#ec4899' },
-            background: { default: '#f5f5f5', paper: '#ffffff' },
+            background: { default: 'white', paper: 'white' },
           }),
     },
     typography: {fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'},

@@ -39,7 +39,7 @@ export const courses: Course[] = [
     content: [
       {
         id: "py-1",
-        title: { ca: "1. Introducció a l'Ecosistema", es: "1. Introducción al Ecosistema", en: "1. Introduction to the Ecosystem" },
+        title: { ca: "1. Introducció a Python", es: "1. Introducción a Python", en: "1. Introduction to Python" },
         subTopics: [
           {
             id: "py-1-1",

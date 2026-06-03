@@ -56,7 +56,7 @@ export function CourseCard({
             <Typography variant="caption" sx={{ fontWeight: 900, color: 'primary.main', fontSize: '0.9rem' }}>{getCoursePoints(course, selectedStudent.id)} {t('dashboard.points')}</Typography>
             <Stack direction="row" spacing={0.25} sx={{ alignItems: "center", flexShrink: 0 }}>
               <Tooltip title={t('dashboard.reset_course_tooltip')}>
-                <IconButton onClick={(e) => onResetCourse(e, course.id)} size="small" sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}><RotateCcw size={15} /></IconButton>
+                <IconButton onClick={(e) => onResetCourse(e, course.id)} size="small" sx={{ color: 'red', '&:hover': { color: 'error.main' } }}><RotateCcw size={15} /></IconButton>
               </Tooltip>
               <ChevronRight size={15} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: '0.3s'}} />
             </Stack>

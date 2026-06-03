@@ -12,6 +12,7 @@ interface Props {
 export function ProgressOverview({ courses, getText, getCourseProgress, studentId }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const hoverBg = theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'action.hover';
 
   return (
     <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: { xs: 2, md: 1 }, bgcolor: 'background.paper', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000', display: { xs: 'none', md: 'block' }, maxWidth: '280px', width: '100%', mt: { xs: 0, md: '-105px !important' } }}>
@@ -26,7 +27,7 @@ export function ProgressOverview({ courses, getText, getCourseProgress, studentI
             <LinearProgress 
               variant="determinate" 
               value={getCourseProgress(course, studentId)} 
-              sx={{ height: 8, borderRadius: 4, bgcolor: 'action.hover' }} 
+              sx={{ height: 8, borderRadius: 4, bgcolor: hoverBg }} 
             />
           </Box>
         ))}

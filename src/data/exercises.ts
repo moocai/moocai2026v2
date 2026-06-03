@@ -12,7 +12,7 @@ export const exercises: Exercise[] = [
   {
     id: "py-1",
     courseId: "Python",
-    title: { ca: "1. Introducció a l'Ecosistema", es: "1. Introducción al Ecosistema", en: "1. Introduction to the Ecosystem" },
+    title: { ca: "1. Introducció a Python", es: "1. Introducción a Python", en: "1. Introduction to Python" },
     exerciseInstructions: { ca: "Imprimeix per pantalla Hello, World!", es: "Imprime por pantalla 'Hello, World!'", en: "Print Hello, World!"},
     challenge: { ca: "Imprimir per pantalla: Hello, World", es: "Imprimir por pantalla: Hello, World", en: "print screen: Hello, World" },
     initialCode: "",
