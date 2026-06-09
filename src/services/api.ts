@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = 'https://algorien.com/api';
 
 // Funció auxiliar per gestionar el localStorage de forma hibrida
 const saveToLocal = (courseId: string, lessonId: string) => {

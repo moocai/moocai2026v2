@@ -24,6 +24,13 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
+    proxy: {
+      '/api': {
+        target: 'https://algorien.com',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
   },
   build: {
     sourcemap: true, 
