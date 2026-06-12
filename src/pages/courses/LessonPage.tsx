@@ -318,8 +318,8 @@ export default function LessonPage() {
                       </>
                     );
                     })()}
-                  <Box sx={{ textAlign: 'center', mt: 2 }}>
-                    <Button onClick={() => setShowResultModal(false)} sx={{ color: '#888', fontSize: 10, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>{t('lesson.back')}</Button>
+                  <Box sx={{ textAlign: 'left', mt: 2 }}>
+                    <Button onClick={() => setShowResultModal(false)} sx={{ color: '#888', fontSize: 15, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>{t('lesson.back')}</Button>
                   </Box>
                 </Box>
               </Box>
