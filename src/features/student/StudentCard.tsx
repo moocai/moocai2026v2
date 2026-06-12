@@ -41,11 +41,11 @@ export function StudentCard({ student, onLogin, onDelete, error }: {
         )}
       </Box>
 
-      <Card sx={{ p: { xs: 1, md: 3}, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: {md: 3}, border: '2px solid', borderColor: error ? 'error.main' : (theme.palette.mode === 'dark' ? '#fff' : '#000'), minWidth: 0, height: '100%', '&:hover': { borderColor: 'primary.main' } }}>
+      <Card sx={{ p: { xs: 1, md: 2.5}, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: {md: 3}, border: '2px solid', borderColor: error ? 'error.main' : (theme.palette.mode === 'dark' ? '#fff' : '#000'), minWidth: 0, height: '100%', '&:hover': { borderColor: 'primary.main' } }}>
         <Avatar sx={{ width: { xs: 30, md: 60 }, height: { xs: 30, md: 60 }, bgcolor: 'primary.main', fontSize: { xs: '1rem', md: '2rem' }, fontWeight: 900, borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000' }}>{student.name.charAt(0)}</Avatar>
         <Typography variant="h6" sx={{ fontWeight: 900, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>{student.name}</Typography>
-        <Stack spacing={1} sx={{ width: '100%' }}>
-          <TextField fullWidth type="password" placeholder="PIN" value={pin} onChange={(e) => setPin(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onLogin(student, pin)} autoComplete="off"/>
+        <Stack spacing={1} sx={{ width: '100%' , mt:2}}>
+          <TextField fullWidth type="password" placeholder={t('dashboard.pin_label')} value={pin} onChange={(e) => setPin(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onLogin(student, pin)} autoComplete="off"/>
           <Button variant="contained" fullWidth size="large" onClick={() => onLogin(student, pin)} startIcon={<Lock size={18} />}>{t('auth.login')}</Button>
         </Stack>
       </Card>

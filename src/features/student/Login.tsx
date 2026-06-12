@@ -65,7 +65,7 @@ export function Login({
                 <UserPlus size={20} color={theme.palette.text.secondary} />
               </Box>
               <Typography variant="body1" sx={{ fontWeight: 900, color: 'text.secondary' }}>
-                {t('dashboard.create_user_title')}
+                {newRole === 'teacher' ? t('dashboard.create_teacher_title') : t('dashboard.create_user_title')}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.disabled', mt: 0.5, textAlign: 'center' }}>
                 {t('dashboard.click_to_login')}
@@ -77,7 +77,7 @@ export function Login({
                 <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
                   <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                     <UserPlus size={18} color={theme.palette.primary.main} />
-                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{t('dashboard.create_user_title')}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{newRole === 'teacher' ? t('dashboard.create_teacher_title') : t('dashboard.create_user_title')}</Typography>
                   </Stack>
                   <IconButton size="small" onClick={() => onShowCreateForm(false)} sx={{ color: 'text.secondary' }}><X size={18} /></IconButton>
                 </Stack>

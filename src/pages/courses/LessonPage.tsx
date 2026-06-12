@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Terminal, Play, CheckCircle2, Zap, Save, Trophy, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Terminal, Play, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Box, Typography, Button, IconButton, Stack, alpha, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
@@ -14,14 +14,11 @@ interface Lesson { id: string; title: string | { ca: string; es: string; en: str
 interface Course { id: string; title: string | { ca: string; es: string; en: string }; content: Lesson[]; }
 interface Student { id: string; name: string; }
 interface DataStructure { courses: Course[]; students: Student[]; }
-type Mode = 'normal' | 'drill' | 'assist' | 'hackathon';
-
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
-  const timerRef = useRef<ReturnType<typeof setInterval>>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { addNotification } = useNotifications();
@@ -32,19 +29,14 @@ export default function LessonPage() {
     return saved ? JSON.parse(saved) : null;
   });
   const [userInput, setUserInput] = useState("");
+  const userInputRef = useRef(userInput);
+  userInputRef.current = userInput;
   const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'pass' | 'fail'>('idle');
-  const [isSaving, setIsSaving] = useState(false);
+  const [, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [wasSavedInSession, setWasSavedInSession] = useState(false);
-  const [currentMode, setCurrentMode] = useState<Mode>('normal');
-  const [timer, setTimer] = useState(60);
-  const [isTimerActive, setIsTimerActive] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
-  const [hackathonPoints, setHackathonPoints] = useState(0);
-  const [fadeKey, setFadeKey] = useState(0);
-  const [hasAttemptedRun, setHasAttemptedRun] = useState(false);
-  const [assistsLeft, setAssistsLeft] = useState(3);
+  const [fadeKey] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
 
   const lang = (i18n.language?.split('-')[0]) as 'ca' | 'es' | 'en';
@@ -57,18 +49,15 @@ export default function LessonPage() {
   const course = apiData?.courses?.find((c) => c.id === courseId);
   const baseLesson = course?.content?.find((l) => l.id === lessonId);
   const exercise = localExercises.find(e => e.id === lessonId && e.courseId === courseId);
-  const currentLessonIndex = course?.content?.findIndex((l) => l.id === lessonId) ?? -1;
 
-  const goToLesson = (index: number) => {
-    if (!course?.content?.[index]) return;
-    setFadeKey(prev => prev + 1);
-    navigate(`/courses/${courseId}/${course.content[index].id}`);
-    if (contentRef.current) contentRef.current.scrollTop = 0;
-  };
-
-  const handlePrevious = () => { if (currentLessonIndex > 0) goToLesson(currentLessonIndex - 1); };
-  const handleNext = () => {
+  const handlePrevious = () => {
     if (course) navigate(`/courses/${course.id}`);
+  };
+  const handleNext = () => {
+    if (!course) return;
+    const idx = course.content?.findIndex((l) => l.id === lessonId) ?? -1;
+    const nextId = idx >= 0 && idx < course.content.length - 1 ? course.content[idx + 1].id : null;
+    navigate(`/courses/${course.id}${nextId ? `?lessonId=${nextId}` : ''}`);
   };
   const codeStorageKey = currentUser ? `code_${currentUser.id}_${courseId}_${lessonId}` : `temp_code_${lessonId}`;
   const getGlobalProgressKey = () => `${courseId}_${lessonId}`;
@@ -80,20 +69,18 @@ export default function LessonPage() {
       const globalProgress = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
       const key = getGlobalProgressKey();
       if (globalProgress[key]) setStatus('pass'); else setStatus('idle');
-      setConsoleOutput([]); setHintVisible(false); setTimer(60); setIsTimerActive(false); setIsDirty(false); setWasSavedInSession(false); setHasAttemptedRun(false); setAssistsLeft(3); setShowResultModal(false);
+      setConsoleOutput([]); setIsDirty(false); setWasSavedInSession(false); setShowResultModal(false);
     }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [baseLesson, currentUser, courseId, lessonId]);
 
+  // Auto-save every 10 seconds when user is typing
   useEffect(() => {
-    if (currentMode === 'drill' && isTimerActive && timer > 0 && status !== 'pass') {
-      timerRef.current = setInterval(() => setTimer((t) => t - 1), 1000);
-    } else if (timer === 0 && currentMode === 'drill' && status !== 'fail') {
-      setStatus('fail'); setIsTimerActive(false);
-      if (!hasAttemptedRun) window.alert("⏰ Temps esgotat! Has de executar el codi per completar el drill.");
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isTimerActive, timer, currentMode, status]);
+    if (!isDirty || !currentUser) return;
+    const id = setInterval(() => {
+      handleSaveProgress(false);
+    }, 10000);
+    return () => clearInterval(id);
+  }, [isDirty, currentUser, codeStorageKey]);
 
   const handleSaveProgress = async (isAutoSaveOnPass = false) => {
     if (!currentUser || !courseId || !lessonId) return;
@@ -102,7 +89,7 @@ export default function LessonPage() {
       const globalProgress = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
       const key = getGlobalProgressKey();
       const wasAlreadyComplete = globalProgress[key] === true;
-      localStorage.setItem(codeStorageKey, userInput);
+      localStorage.setItem(codeStorageKey, userInputRef.current);
       if (isAutoSaveOnPass) {
         globalProgress[key] = true;
         localStorage.setItem('mooc_global_progress', JSON.stringify(globalProgress));
@@ -125,24 +112,14 @@ export default function LessonPage() {
     finally { setIsSaving(false); }
   };
 
-  const handleStartDrill = () => {
-    setTimer(60);
-    setIsTimerActive(true);
-    setHasAttemptedRun(false);
-    setConsoleOutput(prev => [...prev, "⏱️ DRILL ACTIVAT! Tens 60 segons!"]);
-  };
-
   const handleRunTests = () => {
-    if (currentMode === 'drill' && !isTimerActive && status !== 'pass') return;
-    setHasAttemptedRun(true);
     setConsoleOutput(["[SISTEMA]: Executant..."]);
     const cleanUser = userInput.replace(/\s+/g, '').trim();
     const cleanSol = (exercise?.solution || getText(baseLesson?.solution)).replace(/\s+/g, '').trim() || "";
     setTimeout(() => {
       const passed = cleanUser.includes(cleanSol);
       if (passed) {
-        setStatus('pass'); setIsTimerActive(false); setConsoleOutput(p => [...p, "✅ COMPLETAT! Molt bé, pots continuar!"]);
-        if (currentMode === 'hackathon') setHackathonPoints(pts => pts + 150);
+        setStatus('pass'); setConsoleOutput(p => [...p, "✅ COMPLETAT! Molt bé, pots continuar!"]);
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
         handleSaveProgress(true);
       } else { setStatus('fail'); setConsoleOutput(p => [...p, "❌ Revisa el codi"]); }
@@ -183,12 +160,6 @@ export default function LessonPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <IconButton onClick={() => navigate(-1)} sx={{ color: 'text.secondary' }}><ChevronLeft /></IconButton>
         </Box>
-        <Box sx={{ display: 'flex', bgcolor: 'action.hover', p: 0.25, borderRadius: 1 }}>
-          {(['normal', 'drill', 'assist', 'hackathon'] as Mode[]).map((m) => (
-            <Button key={m} onClick={() => { setCurrentMode(m); setTimer(60); setIsTimerActive(false); setAssistsLeft(3); setHintVisible(false); }} sx={{ px: 1, py: 0.20, fontSize: 9, minWidth: 28, bgcolor: currentMode === m ? 'primary.main' : 'transparent', color: currentMode === m ? 'white' : 'text.secondary' }}>{m.toUpperCase()}</Button>
-          ))}
-        </Box>
-        <Button onClick={() => handleSaveProgress(status === 'pass')} disabled={isSaving} sx={{ minWidth: 80, fontSize: 9, color: 'primary.main', fontWeight: 700 }}>{isSaving ? '...' : wasSavedInSession ? t('lesson.saved') : t('lesson.save')}</Button>
       </Box>
 
       {/* Content - Vertical Stack */}
@@ -206,16 +177,13 @@ export default function LessonPage() {
         <Box sx={{ flex: courseId === 'Python' ? 1 : 'unset', height: courseId === 'Python' ? 'auto' : 170, display: 'flex', flexDirection: 'column', bgcolor: '#1e1e1e', width: '100%', flexShrink: 0 }}>
         <Box sx={{ height: 28, px: 1.5, bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #333' }}>
           <Typography sx={{ fontSize: 10, color: '#888', fontWeight: 600 }}>{t('lesson.app_file')}</Typography>
-          {currentMode === 'drill' && !isTimerActive && status !== 'pass' && (
-            <Button onClick={handleStartDrill} size="small" sx={{ minWidth: 44, minHeight: 18, fontSize: 8, bgcolor: '#6366f1', color: '#fff', fontWeight: 700, px: 1, borderRadius: 0.5, '&:hover': { bgcolor: '#4f46e5' } }}>▶ START</Button>
-          )}
-          {currentMode === 'drill' && isTimerActive && (
-            <Typography sx={{ fontSize: 9, color: '#a5b4fc', fontWeight: 700 }}>{timer}s</Typography>
-          )}
         </Box>
         <Box sx={{ flex: 1, p: 1, position: 'relative' }}>
           {courseId === 'Python' && showResultModal ? (
             <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, bgcolor: '#1e1e1e', display: 'flex', flexDirection: 'column', p: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.5 }}>
+                <Button onClick={() => setShowResultModal(false)} sx={{ color: '#888', fontSize: 10, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>Tornar</Button>
+              </Box>
               <Box sx={{ flex: 1, overflowY: 'auto' }}>
                 {consoleOutput.map((line, i) => (
                   <Typography key={i} sx={{ fontFamily: 'monospace', fontSize: '0.85rem', mb: 0.5, color: line.includes('✅') || line.includes('🏆') || line.includes('💾') ? '#4ade80' : line.includes('❌') || line.includes('Revisa') ? '#f87171' : line.includes('SISTEMA') ? '#60a5fa' : '#aaa' }}>{'>'} {line}</Typography>
@@ -270,14 +238,13 @@ export default function LessonPage() {
 
         {/* BOTONS ESTIL */}
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000, height: 70, flexShrink: 0, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, bgcolor: 'background.paper', px: 2 }}>
-        <IconButton onClick={handlePrevious} disabled={currentLessonIndex <= 0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+        <IconButton onClick={handlePrevious} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
           <ChevronLeft size={20}/>
         </IconButton>
         <Stack direction="row" spacing={1} sx={{ flex: 1 }}>
-          <Button onClick={handleOpenConsole} variant="text" sx={{ fontWeight: 700, borderRadius: 1, fontSize: 11, minWidth: 0, px: 1, color: 'text.secondary' }}><Terminal size={14}/></Button>
           <Button onClick={handleRunTests} variant="contained" fullWidth sx={{fontWeight: 900, borderRadius: 1, fontSize: 13 }}>{t('lesson.run')}</Button>
         </Stack>
-        <IconButton onClick={handleNext} disabled={!course} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 1 }}>
+        <IconButton onClick={handleNext} disabled={status !== 'pass'} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 1 }}>
           <ChevronRight size={20}/>
         </IconButton>
       </Box>
@@ -296,20 +263,8 @@ export default function LessonPage() {
       {/* Header - reduced height */}
       <Box sx={{ height: 48, flexShrink: 0, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', px: 3, justifyContent: 'space-between', bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate(-1)} sx={{ color: 'text.secondary' }}><ChevronLeft /></IconButton>
           <Typography sx={{ fontSize: 15, fontWeight: 900, color: 'primary.main' }}>{getText(course.title).toUpperCase()}</Typography>
         </Box>
-        <Box sx={{ display: 'flex', bgcolor: 'action.hover', p: 0.5, borderRadius: 2 }}>
-          {(['normal', 'drill', 'assist', 'hackathon'] as Mode[]).map((m) => (
-            <Button key={m} onClick={() => { setCurrentMode(m); setTimer(60); setIsTimerActive(false); setAssistsLeft(3); setHintVisible(false); }}
-              sx={{ px: 1.5, py: 0.25, fontSize: 9, minWidth: 32, minHeight: 28, bgcolor: currentMode === m ? 'primary.main' : 'transparent', color: 'text.primary' }}>
-              {m === 'drill' && <Zap size={8} />} {m.toUpperCase()}
-            </Button>
-          ))}
-        </Box>
-        <Button onClick={() => handleSaveProgress(status === 'pass')} disabled={isSaving} variant="contained" sx={{ minWidth: 100, minHeight: 32, fontSize: 10 }}>
-          {isSaving ? '...' : isDirty ? <><Save size={10}/> {t('lesson.save')}</> : wasSavedInSession ? <><CheckCircle2 size={10}/> {t('lesson.saved')}</> : <><AlertCircle size={10}/> {t('lesson.pending')}</>}
-        </Button>
       </Box>
 
       {/* 3 Columnas Desktop - reduced heights */}
@@ -318,38 +273,16 @@ export default function LessonPage() {
         <Box sx={{ width: '20%', borderRight: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
           <Box sx={{ flex: 1, p: 2, overflowY: 'auto'}}>
             <Typography sx={{ fontSize: '1rem', fontWeight: 700, mb: 3 , mt:3 }}>{getText(baseLesson.title)}</Typography>
-            <Typography sx={{ fontSize: '1rem', color: 'text.secondary', lineHeight: 2, mb: 2 }}>{getText(exercise?.exerciseInstructions) || getText(baseLesson.exerciseInstructions) || t('lesson.no_instructions')}</Typography>
             <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: '3px solid', borderColor: alpha(theme.palette.primary.main, 0.5), mt:5}}>
               <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>{t('lesson.objective')}</Typography>
               <Typography sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{getText(exercise?.challenge) || getText(baseLesson.challenge)}</Typography>
             </Box>
-            {currentMode === 'drill' && (
-              <Box>
-                {isTimerActive ? (
-                  <Box>
-                    <Typography sx={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'monospace', color: timer <= 10 ? '#f87171' : '#a5b4fc' }}>{timer}s</Typography>
-                    <Typography sx={{ fontSize: '0.6rem', color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Temps restant</Typography>
-                  </Box>
-                ) : status === 'pass' ? (
-                  <Typography sx={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 700 }}>✅ DRILL COMPLETAT!</Typography>
-                ) : null}
-                {status === 'fail' && !isTimerActive && (
-                  <Typography sx={{ fontSize: '0.7rem', color: '#f87171', mt: 0.5 }}>❌ Temps esgotat — prem START per reintentar</Typography>
-                )}
-              </Box>
-            )}
-            {currentMode === 'assist' && (
-            <Button fullWidth onClick={() => { if (hintVisible) { setHintVisible(false); } else if (assistsLeft > 0) { setHintVisible(true); setAssistsLeft(a => a - 1); } }} disabled={assistsLeft === 0 && !hintVisible} sx={{ fontSize: '0.75rem', mb: 1.5, minHeight: 32 }}>
-              {hintVisible ? t('lesson.hide_hint') : `💡 ${t('lesson.need_help')} (${assistsLeft})`}
-            </Button>
-          )}
-            <AnimatePresence>{hintVisible && <motion.div initial={{opacity:0}} animate={{opacity:1}}><Box sx={{ p: 1.5, bgcolor: alpha('#3b82f6',0.1), borderRadius: 1.5, fontSize: '0.75rem', color: '#93c5fd' }}>💡 {(exercise?.solution || getText(baseLesson.solution)).slice(0,16)}...</Box></motion.div>}</AnimatePresence>
           </Box>
-          {/* Estat de punts - reduced */}
-          <Box sx={{ p: 2, bgcolor: alpha('#fbbf24',0.08), borderTop: '1px solid #fbbf24', textAlign: 'center' }}>
-            <Trophy size={24} color="#f59e0b" style={{display:'block', margin:'0 auto 4px'}} />
-            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#f59e0b' }}>{t('lesson.points_label')}</Typography>
-            <Typography sx={{ fontSize: '1.25rem', fontWeight: 900 }}>{currentMode === 'hackathon' ? `+${hackathonPoints}` : '10'}</Typography>
+          {/* Points */}
+          <Box sx={{ p: 2, bgcolor: alpha('#8400ff',0.05), borderTop: '1px solid #8400ff', textAlign: 'center' }}>
+            <Trophy size={24} color="#8400ff" style={{display:'block', margin:'0 auto 4px'}} />
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: 'white' }}>{t('lesson.points_label')}</Typography>
+            <Typography sx={{ fontSize: '1.25rem', fontWeight: 900 }}>10</Typography>
           </Box>
         </Box>
 
@@ -358,10 +291,6 @@ export default function LessonPage() {
           <Box sx={{ height: 40, px: 2, bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #333' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Typography sx={{ fontSize: 11, color: '#888', fontWeight: 500 }}>{t('lesson.app_file')}</Typography>
-              {currentMode === 'drill' && !isTimerActive && status !== 'pass' && (
-                <Button onClick={handleStartDrill} size="small" sx={{ minWidth: 50, minHeight: 20, fontSize: 9, bgcolor: '#6366f1', color: '#fff', fontWeight: 700, px: 1, borderRadius: 0.5, '&:hover': { bgcolor: '#4f46e5' } }}>▶ START</Button>
-              )}
-              {currentMode === 'drill' && isTimerActive && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: alpha('#6366f1',0.3), px: 1, borderRadius: 0.5 }}><Typography sx={{ fontSize: 10, color: '#a5b4fc' }}>{timer}s</Typography></Box>}
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button onClick={handleOpenConsole} startIcon={<Terminal size={10}/>} sx={{ bgcolor: 'transparent', color: '#888', height: 28, fontSize: 10, fontWeight: 600, px: 1.5, borderRadius: 1, border: '1px solid #444', '&:hover': { bgcolor: '#333', color: '#fff' } }}>Consola</Button>
@@ -425,8 +354,8 @@ export default function LessonPage() {
 
       {/* Footer Desktop - reduced */}
       <Box sx={{ height: 56, flexShrink: 0, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, bgcolor: 'background.paper' }}>
-        <Button onClick={handlePrevious} disabled={currentLessonIndex <= 0} variant="outlined" sx={{ minWidth: 120, minHeight: 36, fontSize: '0.85rem' }}><ChevronLeft size={18}/> {t('lesson.previous')}</Button>
-        <Button onClick={handleNext} disabled={!course} variant="outlined" sx={{ minWidth: 120, minHeight: 36, fontSize: '0.85rem' }}>{t('lesson.next')} <ChevronRight size={18}/></Button>
+        <Button onClick={handlePrevious} variant="outlined" sx={{ minWidth: 120, minHeight: 36, fontSize: '0.85rem' }}><ChevronLeft size={18}/> {t('lesson.previous')}</Button>
+        <Button onClick={handleNext} disabled={status !== 'pass'} variant="outlined" sx={{ minWidth: 120, minHeight: 36, fontSize: '0.85rem' }}>{t('lesson.next')} <ChevronRight size={18}/></Button>
       </Box>
     </Box>
   );

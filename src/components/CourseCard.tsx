@@ -25,13 +25,7 @@ export function CourseCard({ course, index }: CourseCardProps) {
     if (course.disabled) return;
     e.preventDefault();
     e.stopPropagation();
-    const token = localStorage.getItem('token');
-    const currentStudent = localStorage.getItem('currentStudent');
-    if (!token && !currentStudent) {
-      navigate('/dashboards/student');
-      return;
-    }
-    navigate('/dashboards/student');
+    navigate(`/courses/${course.id}`);
   };
   const logoW = course.logoWidth || course.logoSize || 100;
   const logoH = course.logoHeight || course.logoSize || 100;
@@ -43,7 +37,7 @@ export function CourseCard({ course, index }: CourseCardProps) {
           <Box sx={{ p: { xs: 1.5, md: 2 }, pb: 0 }}>
             <Box sx={{position: 'relative', height: {xs: '120px', md: '180px'}, width: '100%',borderRadius: 1, overflow: 'hidden',background: 'linear-gradient(135deg, ' + theme.palette.primary.main + '26 0%, ' + theme.palette.secondary?.main + '33 100%)', display: 'flex',alignItems: 'center', justifyContent: 'center', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#8400ff' : 'black'}}>
               {course.disabled && (
-                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, bgcolor: 'error.main', color: 'white', px: 1.5, py: 0.5, borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, bgcolor: '#8400ff', color: 'white', px: 1.5, py: 0.5, borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   PROPERAMENT
                 </Box>
               )}

@@ -15,8 +15,6 @@ interface Props {
   getText: (field: any) => string;
   getCoursePoints: (course: Course, studentId: string) => number;
   onResetCourse: (e: MouseEvent, courseId: string) => void;
-  activeTab: 'syllabus' | 'activities';
-  onTabChange: (tab: 'syllabus' | 'activities') => void;
   dbProgress: Record<string, boolean>;
   getCourseTopics: (course: Course) => Topic[];
   onNavigate: (path: string) => void;
@@ -30,8 +28,6 @@ export function CourseCard({
   getText,
   getCoursePoints,
   onResetCourse,
-  activeTab,
-  onTabChange,
   dbProgress,
   getCourseTopics,
   onNavigate,
@@ -42,17 +38,16 @@ export function CourseCard({
   return (
     <Box sx={{ position: 'relative' }}>
       {course.disabled && (
-        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, bgcolor: 'red', color: 'white', px: 1, py: 0.25, borderRadius: '6px', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, bgcolor: '#8400ff', color: 'white', px: 1, py: 0.25, borderRadius: '6px', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           PROXIMAMENT
         </Box>
       )}
       
       <Card 
         component={motion.div}
-        onClick={onToggle} 
         sx={{ 
           p: { xs: 2, md: 4 }, 
-          cursor: course.disabled ? 'default' : 'pointer', 
+          cursor: 'default', 
           borderRadius: { xs: 1.5, md: 1 }, 
           bgcolor: 'background.paper', 
           border: '1px solid', 
@@ -91,12 +86,19 @@ export function CourseCard({
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="caption" sx={{ fontWeight: 900, color: 'primary.main', fontSize: '0.9rem' }}>{getCoursePoints(course, selectedStudent.id)} {t('dashboard.points')}</Typography>
-            <Stack direction="row" spacing={0.25} sx={{ alignItems: "center", flexShrink: 0 }}>
-              <Tooltip title={t('dashboard.reset_course_tooltip')}>
-                <IconButton onClick={(e) => onResetCourse(e, course.id)} size="small" sx={{ color: 'red', '&:hover': { color: 'error.main' } }}><RotateCcw size={15} /></IconButton>
-              </Tooltip>
+            <Tooltip title={t('dashboard.reset_course_tooltip')}>
+              <IconButton onClick={(e) => onResetCourse(e, course.id)} size="small" sx={{ color: 'red', '&:hover': { color: 'error.main' } }}><RotateCcw size={15} /></IconButton>
+            </Tooltip>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+            <Box component="button" type="button" disabled={course.disabled} onClick={() => onNavigate(`/courses/${course.id}`)} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, cursor: course.disabled ? 'default' : 'pointer', bgcolor: '#8400ff', border: 'none', borderRadius: '8px', px: 1, py: 0.25, color: '#fff', width: 'fit-content', opacity: course.disabled ? 0.5 : 1, '&:hover': { opacity: course.disabled ? 0.5 : 0.8 } }}>
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{t('dashboard.syllabus')}</Typography>
+              <ChevronRight size={15} />
+            </Box>
+            <Box component="button" type="button" onClick={(e) => {e.stopPropagation(); onToggle();}} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, cursor: 'pointer', bgcolor: 'transparent', border: '1px solid #8400ff', borderRadius: '8px', pl: 0.5, pr: 0.25, py: 0.25, color: 'text.secondary', width: 'fit-content', '&:hover': { opacity: 0.7 } }}>
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{t('dashboard.labs')}</Typography>
               <ChevronRight size={15} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: '0.3s'}} />
-            </Stack>
+            </Box>
           </Box>
         </Stack>
       </Card>
@@ -105,8 +107,6 @@ export function CourseCard({
         {isExpanded && (
           <CourseExpandedContent
             course={course}
-            activeTab={activeTab}
-            onTabChange={onTabChange}
             dbProgress={dbProgress}
             getText={getText}
             getCourseTopics={getCourseTopics}

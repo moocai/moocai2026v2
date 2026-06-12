@@ -4,7 +4,7 @@ export default {
     logout: "Salir",
     start: "Inicio",
     login_students: "Acceso Alumnos",
-    incorrect_pin: "PIN incorrecto",
+    incorrect_pin: "Contraseña incorrecto",
     access: "Acceder",
     enroll_login_required: "Debes iniciar sesión para inscribirte al curso"
   },
@@ -17,9 +17,10 @@ export default {
     ranking_title: "Ranking",
     you: "Tú",
     create_user_title: "Nuevo Alumno",
+    create_teacher_title: "Nuevo Profesor",
     name_label: "Nombre completo",
     email_label: "Correo electrónico",
-    pin_label: "PIN (4 dígitos)",
+    pin_label: "Contraseña (4 digitos)",
     register_btn: "Registrar Alumno",
     reset_course_confirm: "¿Estás seguro de que quieres reiniciar el progreso de este curso?",
     reset_course_tooltip: "Reiniciar curso",
@@ -32,7 +33,8 @@ export default {
     points: "puntos",
     leaderboard: "CLASIFICACIÓN",
     syllabus: "Temario",
-    activities: "Laboratorio"
+    activities: "Laboratorio",
+    labs: "Laboratorios"
   },
   home: {
     featured_title: "Cursos Destacados",
@@ -91,7 +93,7 @@ export default {
     progress_error: "Error al guardar el progreso ⚠️",
     account_created: "Cuenta creada correctamente, {{name}} ({{role}}) 🎉",
     user_deleted: "Usuario eliminado: {{name}} ({{role}}) 🗑️",
-    incorrect_pin: "PIN incorrecto ❌",
+    incorrect_pin: "Contraseña incorrecto ❌",
     welcome: "Bienvenido/a, {{name}} 👋",
     session_closed: "Sesión cerrada 👋",
     course_reset: "Curso reiniciado correctamente 🗑️",
@@ -108,7 +110,7 @@ export default {
     next: "Siguiente",
     go_to_activity: "Ir a la actividad",
     lessons: "Lecciones",
-    objective: "Objetivo",
+    objective: "Anunciado",
     run: "EJECUTAR",
     debug_console: "CONSOLA DE DEBUG",
     lesson_completed: "LECCIÓN COMPLETADA!",

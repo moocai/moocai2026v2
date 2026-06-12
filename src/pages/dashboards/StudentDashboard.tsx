@@ -31,7 +31,6 @@ export default function StudentDashboard() {
   const [dbProgress, setDbProgress] = useState<Record<string, boolean>>({});
   const [errorId, setErrorId] = useState<string | null>(null);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'syllabus' | 'activities'>('syllabus');
   const [rankingTab, setRankingTab] = useState(0);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -245,8 +244,6 @@ export default function StudentDashboard() {
                             getText={getText}
                             getCoursePoints={getCoursePoints}
                             onResetCourse={handleResetCourse}
-                            activeTab={activeTab}
-                            onTabChange={setActiveTab}
                             dbProgress={dbProgress}
                             getCourseTopics={getCourseTopics}
                             onNavigate={(path: string) => navigate(path)}

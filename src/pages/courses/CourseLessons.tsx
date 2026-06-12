@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
   Box, Typography, Accordion, AccordionSummary, AccordionDetails,
   Button, CircularProgress, Stack, useTheme, alpha, Drawer
 } from '@mui/material';
-import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { courses as localCourses } from '../../data/courses';
+import { exercises as localExercises } from '../../data/exercises';
 
 
 type I18nField = { ca: string; es: string; en: string };
@@ -40,12 +41,14 @@ interface DataStructure { courses: Course[]; }
 
 export default function CourseLessons() {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const [apiData] = useState<DataStructure | null>(() => ({ courses: localCourses as any[] }));
   const [loading] = useState(false);
-  const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lessonId') || null);
   const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
   const [progress, setProgress] = useState<Record<string, boolean>>(() =>
     JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')
   );
@@ -59,6 +62,23 @@ export default function CourseLessons() {
   const course = apiData?.courses?.find(c => c.id === courseId);
   const defaultLessonId = course?.content?.[0]?.id ?? null;
   const activeId = activeLessonId ?? defaultLessonId;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(`scroll_${courseId}`);
+    if (saved && scrollRef.current) {
+      scrollRef.current.scrollTop = parseInt(saved);
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const save = () => sessionStorage.setItem(`scroll_${courseId}`, el.scrollTop.toString());
+    el.addEventListener('scroll', save);
+    return () => el.removeEventListener('scroll', save);
+  }, [courseId]);
 
   const lang = (i18n.language?.split('-')[0] as keyof I18nField) || 'ca';
   const getText = (field: I18nField | string | undefined): string => {
@@ -153,7 +173,7 @@ export default function CourseLessons() {
         </Box>
 
         {/* CENTRAL COLUMN - Reading Content */}
-        <Box sx={{
+        <Box ref={scrollRef} sx={{
           flex: '1 1 auto',
           minWidth: 0,
           maxWidth: { md: 'none' },
@@ -323,14 +343,30 @@ export default function CourseLessons() {
                     </Box>
                   ))}
 
-                  {/* Start Challenge */}
+                  {/* Exercise explanation */}
+                  {(() => {
+                    const ex = localExercises.find(e => e.id === lesson.id && e.courseId === courseId);
+                    if (!ex) return null;
+                    return (
+                      <Box sx={{ mb: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), borderRadius: 2, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.15) }}>
+                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'text.secondary' }}>
+                          {t('lesson.objective')}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.9rem', color: 'text.primary', lineHeight: 1.5 }}>
+                          {getText(ex.challenge as I18nField)}
+                        </Typography>
+                      </Box>
+                    );
+                  })()}
+
+                  {/* Anar a l'activitat */}
                   <Button
                     component={RouterLink}
                     to={`/courses/${courseId}/${lesson.id}`}
                     variant="contained"
                     sx={{ fontWeight: 700, borderRadius: 2, px: 4, py: 1.5, mt: 2 }}
                   >
-                    Start Challenge
+                    {t('lesson.go_to_activity')}
                   </Button>
                 </Box>
               </motion.div>
@@ -338,21 +374,30 @@ export default function CourseLessons() {
           </motion.div>
         </Box>
 
-        {/* RIGHT COLUMN - Anchor Links & Challenge */}
-        <Box sx={{
-          width: { md: '22%', lg: '20%', xl: '18%' },
-          minWidth: { md: 200, lg: 220 },
-          maxWidth: { md: 260, lg: 300, xl: 340 },
-          flexShrink: 0,
-          borderLeft: '1px solid',
-          borderColor: 'divider',
-          display: { xs: 'none', md: 'block' },
-          bgcolor: 'background.paper',
-          pt: 4,
-          px: 2,
-          pb: 2,
-        }}>
-          {/* On this page */}
+        {/* RIGHT COLUMN - Anchor Links & Challenge (fixed overlay) */}
+        <Box
+          component={motion.div}
+          animate={{
+            x: showRightPanel ? 0 : '100%',
+          }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            position: 'fixed',
+            right: 0,
+            top: 64,
+            bottom: 0,
+            width: 300,
+            zIndex: 50,
+            borderLeft: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            pt: 4,
+            px: 2,
+            pb: 2,
+            overflowY: 'auto',
+          }}
+        >
           <Typography sx={{
             fontSize: '0.65rem',
             fontWeight: 700,
@@ -410,6 +455,32 @@ export default function CourseLessons() {
               </Box>
             ))}
           </Stack>
+        </Box>
+
+        {/* Toggle button for right panel */}
+        <Box sx={{ position: 'fixed', right: 0, top: 'calc(50% + 32px)', zIndex: 100, display: { xs: 'none', md: 'block' } }}>
+          <motion.div
+            animate={{ x: showRightPanel ? -300 : 0, y: '-50%' }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <Button
+              onClick={() => setShowRightPanel(prev => !prev)}
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 64,
+                borderRadius: '8px 0 0 8px',
+                border: '1px solid',
+                borderRight: 'none',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+                color: 'text.secondary',
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08), color: 'primary.main', borderColor: 'primary.main' },
+              }}
+            >
+              {showRightPanel ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </Button>
+          </motion.div>
         </Box>
       </Box>
     </Box>

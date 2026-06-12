@@ -17,9 +17,10 @@ export default {
     ranking_title: "Ranking",
     you: "You",
     create_user_title: "New Student",
+    create_teacher_title: "New Teacher",
     name_label: "Full name",
     email_label: "Email address",
-    pin_label: "PIN (4 digits)",
+    pin_label: "Password (4 digits)",
     register_btn: "Register Student",
     reset_course_confirm: "Are you sure you want to reset the progress of this course?",
     reset_course_tooltip: "Reset course",
@@ -32,7 +33,8 @@ export default {
     points: "points",
     leaderboard: "LEADERBOARD",
     syllabus: "Leasons",
-    activities: "Activities"
+    activities: "Activities",
+    labs: "Labs"
   },
   home: {
     featured_title: "Featured Courses",
@@ -104,7 +106,7 @@ export default {
     next: "Next",
     go_to_activity: "Go to activity",
     lessons: "Lessons",
-    objective: "Objective",
+    objective: "Announced",
     run: "RUN",
     debug_console: "DEBUG CONSOLE",
     lesson_completed: "LESSON COMPLETED!",
