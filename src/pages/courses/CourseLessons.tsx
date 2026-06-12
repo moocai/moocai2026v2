@@ -335,7 +335,7 @@ export default function CourseLessons() {
                           </Box>
                           <Box sx={{ p: 3, overflow: 'auto' }}>
                             <Typography sx={{ fontFamily: "'Fira Code', 'Consolas', monospace", fontSize: '0.9rem', color: '#7ee787', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
-                              {sub.exampleCode}
+                              {`"${sub.exampleCode}"`}
                             </Typography>
                           </Box>
                         </Box>
@@ -352,7 +352,7 @@ export default function CourseLessons() {
                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'text.secondary' }}>
                           {t('lesson.objective')}
                         </Typography>
-                        <Typography sx={{ fontSize: '0.9rem', color: 'text.primary', lineHeight: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.9rem', color: 'text.primary'}}>
                           {getText(ex.challenge as I18nField)}
                         </Typography>
                       </Box>

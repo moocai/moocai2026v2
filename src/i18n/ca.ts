@@ -103,6 +103,7 @@ export default {
     previous: "Tornar al temari",
     next: "Següent temari",
     go_to_activity: "Anar a l'activitat",
+    back: "Tornar al prompt",
     lessons: "Lliçons",
     objective: "Anunciat",
     run: "EXECUTAR",

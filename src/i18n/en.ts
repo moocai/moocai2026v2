@@ -105,6 +105,7 @@ export default {
     previous: "Previous",
     next: "Next",
     go_to_activity: "Go to activity",
+    back: "Back",
     lessons: "Lessons",
     objective: "Announced",
     run: "RUN",

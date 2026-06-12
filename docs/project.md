@@ -1,26 +1,26 @@
 # MOOC React 2026
-**Última actualització: 4 de juny de 2026**
+**Última actualització: 12 de juny de 2026**
 ---
 
 ## 1. Tecnologies i Dependències
 
-| Categoria | Llibreria | Versió (instal·lada) | Ús |
+| Categoria | Llibreria | Versió (package.json) | Ús |
 |-----------|-----------|----------------------|-----|
-| **Framework** | React | 19.2.7 | Components i hooks |
-| **Build** | Vite | 6.4.3 | Dev server i bundling |
-| **UI** | @mui/material | 9.0.1 | Components Material Design + CssBaseline |
-| **Estils** | @emotion/react, @emotion/styled | 11.14.0 / 11.14.1 | Estils CSS-in-JS |
-| **Icons** | @mui/icons-material + lucide-react | 9.0.1 / 0.577.0 | Icones |
-| **Routing** | react-router-dom | 6.30.4 | Navegació SPA (v7 future flags) |
-| **Animacions** | framer-motion + @react-spring/web | 12.40.0 / 10.1.0 | Animacions declaratives |
-| **Internacionalització** | i18next + react-i18next + i18next-browser-languagedetector | 26.3.0 / 17.0.8 / 8.2.1 | Multiidioma (CA, ES, EN) |
-| **HTTP** | axios | 1.16.1 | Peticions a API REST |
-| **Confetti** | canvas-confetti | 1.9.4 | Animació en completar lliçons |
-| **React Compiler** | babel-plugin-react-compiler | 1.0.0 | Optimització React 19 |
-| **Util** | clsx, class-variance-authority | 2.1.1 / 0.7.1 | Classes condicionals |
-| **Util** | tailwind-merge, tailwindcss-animate, tw-animate-css | 3.6.0 / 1.0.7 / 1.4.0 | Utilitats Tailwind (instal·lades) |
-| **Tipus** | TypeScript | 5.9.3 | Tipat estàtic |
-| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss | 4.7.0 / 8.5.15 / 10.5.0 / 3.4.19 | Configuració build |
+| **Framework** | React | ^19.2.7 | Components i hooks |
+| **Build** | Vite | ^6.0.0 | Dev server i bundling |
+| **UI** | @mui/material | ^9.0.0 | Components Material Design + CssBaseline |
+| **Estils** | @emotion/react, @emotion/styled | ^11.14.0 / ^11.14.1 | Estils CSS-in-JS |
+| **Icons** | @mui/icons-material + lucide-react | ^9.0.0 / ^0.577.0 | Icones |
+| **Routing** | react-router-dom | ^6.30.3 | Navegació SPA (v7 future flags) |
+| **Animacions** | framer-motion + @react-spring/web | ^12.38.0 / ^10.1.0 | Animacions declaratives |
+| **Internacionalització** | i18next + react-i18next + i18next-browser-languagedetector | ^26.0.6 / ^17.0.4 / ^8.2.1 | Multiidioma (CA, ES, EN) |
+| **HTTP** | axios | ^1.15.0 | Peticions a API REST |
+| **Confetti** | canvas-confetti | ^1.9.2 | Animació en completar lliçons |
+| **React Compiler** | babel-plugin-react-compiler | ^1.0.0 | Optimització React 19 |
+| **Util** | clsx, class-variance-authority | ^2.1.1 / ^0.7.1 | Classes condicionals |
+| **Util** | tailwind-merge, tailwindcss-animate, tw-animate-css | ^3.5.0 / ^1.0.7 / ^1.4.0 | Utilitats Tailwind (instal·lades) |
+| **Tipus** | TypeScript | ^5.5.0 | Tipat estàtic |
+| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss | ^4.3.0 / ^8.4.0 / ^10.4.0 / ^3.4.0 | Configuració build |
 
 ---
 
@@ -28,6 +28,7 @@
 
 ```
 src/
+├── App.css                         # Estils CSS legacy (no importat des de cap fitxer)
 ├── App.tsx                         # Router principal amb rutes (Home, Courses, Dashboard)
 ├── env.d.ts                        # Declaracions de tipus per a fitxers estàtics (.css, .svg, .png, .webp)
 ├── index.css                       # Scrollbar styling, CSS variables, animació shake
@@ -44,19 +45,19 @@ src/
 │   └── ui/                         # Components base
 │       ├── badge.tsx               # Badge (standard/outline) basat en MUI Chip
 │       ├── Card.tsx                # Wrapper MUI Card amb blur, border, hover effects
-│       ├── NotificationHub.tsx      # Toast UI: useTransition, useSpring, MUI Alert
+│       ├── NotificationHub.tsx     # Toast UI: useTransition, useSpring, MUI Alert
 │       ├── ProgressBar.tsx         # (BUIT)
 │       └── SearchInput.tsx         # (BUIT)
 │
 ├── contexts/                       # Contextos React
-│   ├── AuthContext.tsx             # Autenticació (login/logout/token/user) - CREAT però NO usat a main.tsx
-│   ├── I18nContext.tsx             # Idioma (persistència localStorage clau mooc-language)
+│   ├── AuthContext.tsx             # Autenticació (login/logout/token/user) - Provider connectat a main.tsx
+│   ├── I18nContext.tsx             # Idioma (importa i18n des de src/i18n.ts, persistència localStorage clau mooc-language)
 │   ├── NotificationContext.tsx     # Context + Provider (estat toasts, setTimeout, renderitza NotificationHub)
 │   └── ThemeContext.tsx            # Tema clar/fosc (persistència localStorage clau mooc-theme-mode)
 │
 ├── data/                           # Dades estàtiques
 │   ├── courses.ts                  # Cursos (Python 13 lliçons, React 2, Spring Boot 2 deshab., ML 2 deshab.)
-│   ├── exercises.ts                # 17 exercicis (initialCode + solution) per curs/lliçó
+│   ├── exercises.ts                # 19 exercicis (13 Python, 2 React, 2 Spring Boot, 2 ML) amb initialCode + solution
 │   └── students.ts                 # 3 estudiants predefinits (Marc/1, Jordi/2, Miquel/3)
 │
 ├── features/                       # Components agrupats per funció
@@ -89,7 +90,9 @@ src/
 │   ├── ca.ts                       # Català (auth, dashboard, home, hero, footer, course, lesson)
 │   ├── en.ts                       # Anglès
 │   ├── es.ts                       # Castellà
-│   └── index.ts                    # Configuració i18next (LanguageDetector, fallback 'ca')
+│   └── index.ts                    # Configuració i18next duplicada (no importat des de cap lloc)
+│
+├── i18n.ts                         # Configuració i18next principal (importat per I18nContext.tsx)
 │
 ├── layouts/                        # Layouts per a rutes
 │   ├── MainLayout.tsx              # Header + Outlet
@@ -112,7 +115,7 @@ src/
 │       └── Students.tsx
 │
 ├── services/                       # Capa d'accés a dades
-│   ├── api.ts                      # Client axios (progress CRUD híbrid local + API)
+│   ├── api.ts                      # Client axios (progress CRUD híbrid local + API, BASE_URL: https://algorien.com/api)
 │   ├── authService.ts              # Login/logout/getMe (només API, sense fallback local)
 │   ├── courseService.ts            # CRUD cursos/lliçons amb fallback a data/courses.ts
 │   └── teacherService.ts           # (BUIT)
@@ -134,7 +137,7 @@ src/
 | Fitxer | Propòsit |
 |--------|----------|
 | `index.html` | HTML entry point (meta description "LEARN LANGUAGES 2026") |
-| `vite.config.ts` | Configuració Vite + React plugin + `@` alias + manualChunks + sourcemap + babel-plugin-react-compiler |
+| `vite.config.ts` | Configuració Vite + React plugin + `@` alias + proxy `/api` → `https://algorien.com` + manualChunks + sourcemap + babel-plugin-react-compiler |
 | `tsconfig.json` | Configuració TypeScript amb `@/*` path alias |
 | `package.json` | Dependències i scripts (dev, build, preview) |
 | `.gitignore` | Fitxers ignorats per git |
@@ -143,6 +146,7 @@ src/
 
 | Fitxer | Propòsit |
 |--------|----------|
+| `public/img/favicon.png` | Favicon de l'aplicació |
 | `public/img/logo.webp` | Logo de l'aplicació |
 | `public/img/Python.svg` | Logo del curs Python |
 | `public/img/React.svg` | Logo del curs React |
@@ -188,8 +192,8 @@ src/
 
 | Fitxer | Provider | Hook | Funcions |
 |--------|----------|------|----------|
-| `AuthContext.tsx` | `AuthProvider` | `useAuth()` | `login(credentials)`, `logout()`, estat: `user`, `token`, `isAuthenticated`, `loading` (✅ connectat a main.tsx) |
-| `I18nContext.tsx` | `I18nProvider` | `useI18n()` | `setLanguage(lang)`, estat: `language` (persistit a localStorage clau `mooc-language`) |
+| `AuthContext.tsx` | `AuthProvider` | `useAuth()` | `login(credentials)`, `logout()`, estat: `user`, `token`, `isAuthenticated`, `loading` (Provider connectat a main.tsx) |
+| `I18nContext.tsx` | `I18nProvider` | `useI18n()` | `setLanguage(lang)`, estat: `language` (persistit a localStorage clau `mooc-language`). Importa i18n des de `src/i18n.ts` per inicialitzar i18next |
 | `NotificationContext.tsx` | `NotificationProvider` | `useNotifications()` | `addNotification(msg, severity)`. Estat intern `toasts`. Renderitza `<NotificationHub>` amb react-spring i auto-remove 2000ms |
 | `ThemeContext.tsx` | `ThemeProvider` | `useThemeMode()` | `toggleTheme()`, `setMode(mode)`, estat: `mode` (persistit a localStorage clau `mooc-theme-mode`) |
 
@@ -198,7 +202,7 @@ src/
 | Fitxer | Interfície | Contingut |
 |--------|-----------|-----------|
 | `courses.ts` | `Course`, `LessonContent`, `SubTopic` | 4 cursos: Python (13 lliçons), React (2 lliçons), Spring Boot (2, deshabilitat), Machine Learning (2, deshabilitat). Cada lliçó amb subtopics multiidioma i exampleCode |
-| `exercises.ts` | `Exercise` | 17 exercicis (13 Python, 2 React, 1 Spring Boot, 1 ML) amb `initialCode`, `solution`, `challenge`, `exerciseInstructions` multiidioma |
+| `exercises.ts` | `Exercise` | 19 exercicis (13 Python, 2 React, 2 Spring Boot, 2 ML) amb `initialCode`, `solution`, `challenge`, `exerciseInstructions` multiidioma |
 | `students.ts` | `Student` | 3 estudiants predefinits amb PIN: Marc (1), Jordi (2), Miquel (3) |
 
 ### Features Student (`src/features/student/`)
@@ -227,7 +231,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 |--------|-----------|---------------|
 | `Home.tsx` | (default) | Carrega cursos via `courseService.getAllCourses()` amb loading/error, 6 feature cards animades (containerVariants + cardVariants amb stagger i direccional), visibility change listener |
 | `courses/CourseLessons.tsx` | (default) | Layout 3 columnes: syllabus accordion (motion.div amb slide-in seqüencial) + contingut (breadcrumb, course info, subTopics amb code examples) + "On this page" anchor links. Drawer mòbil per syllabus |
-| `courses/LessonPage.tsx` | (default) | Editor codi interactiu. 4 modes (normal/drill/assist/hackathon), tests (cleanUser.includes(cleanSol)), confetti, submissions, localStorage progress. Mostra submissions d'altres estudiants per Python. Notificacions toast via `NotificationContext` en desar progrés |
+| `courses/LessonPage.tsx` | (default) | Editor codi interactiu. 4 modes (normal/drill/assist/hackathon), tests (cleanUser.includes(cleanSol)), confetti, submissions, localStorage progress. Desktop: 3 columnes (enunciat, editor, consola). Mobile: stack vertical amb flex column wrapper. Python: inline fail console panel a sota de l'editor (mobile + desktop), result modal només en passar (mostra "ALTRES ESTUDIANTS" + "Tornar"). Notificacions toast via `NotificationContext` en desar progrés |
 | `courses/${courseId}/${lesson.id}/LessonTopic.tsx` | (default) | Sidebar llista lliçons (filtrada a l'actual), explicació teòrica, challenge box, exercise instructions, navegació prev/next/go-to-activity |
 | `dashboards/StudentDashboard.tsx` | (default) | Login/create-user flow, profile card, progress overview, course grid expansible, ranking per tabs. Integra dades locals + API progress sync. Notificacions toast via `NotificationContext` (login, logout, create, delete, error PIN, reset curs). Dispara `studentsUpdated` event en crear/eliminar usuaris. Passa `students` com a prop a `Login` |
 | `teacher/Courses.tsx` | (BUIT) | |
@@ -284,7 +288,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 | `ca.ts` (127 línies) | auth, dashboard, home (features, why_choose), hero (stats, subtitle, scroll_down), footer (brand_tagline, explore, community, connect, copyright), course (enroll, by), common (errors), **notifications (9 claus)**, lesson (syllabus, run, debug, objective, challenge, points, etc.) |
 | `es.ts` (133 línies) | Mateixes seccions en castellà |
 | `en.ts` (129 línies) | Mateixes seccions en anglès |
-| `index.ts` (24 línies) | Configuració i18next amb LanguageDetector, initReactI18next, fallback 'ca' (punt d'entrada des de main.tsx via `./i18n`) |
+| `index.ts` (24 línies) | Configuració i18next duplicada (no importada des de cap lloc). La configuració real es carrega des de `src/i18n.ts`, importada per `I18nContext.tsx` |
 
 ---
 
@@ -364,14 +368,14 @@ Login
 - ✅ Context d'autenticació (AuthContext) - Provider connectat a main.tsx
 - ✅ StudentDashboard complet (login/create-user, perfil, progrés, rànquing, cursos expansibles)
 - ✅ CourseLessons (layout 3 columnes amb syllabus accordion animat + contingut + anchor links, drawer mòbil)
-- ✅ LessonPage (editor codi amb 4 modes, tests per inclusió, confetti, submissions, localStorage)
+- ✅ LessonPage (editor codi amb 4 modes, tests per inclusió, confetti, submissions, localStorage, inline Python fail console panel, result modal només en passar)
 - ✅ LessonTopic (vista teòrica amb sidebar lliçons + explicació + challenge + navegació)
 - ✅ Serveis API amb fallback local (courseService) o sense (authService)
-- ✅ Dades estàtiques completes (courses.ts 13 lliçons Python, exercises.ts 17 exercicis, students.ts)
+- ✅ Dades estàtiques completes (courses.ts 13 lliçons Python, exercises.ts 19 exercicis, students.ts)
 - ✅ Utils (formatters, validators, sx compositor)
 - ✅ `main.tsx` i `App.tsx` - Connectats amb BrowserRouter (v7 flags), StyledEngineProvider, ThemeProvider, I18nProvider, AuthProvider, NotificationProvider
 - ✅ `MainLayout.tsx` - En ús com a layout route (Header + Outlet)
-- ✅ `vite.config.ts` - Configurat amb `@` alias, manualChunks, sourcemap, babel-plugin-react-compiler
+- ✅ `vite.config.ts` - Configurat amb `@` alias, proxy `/api` → `https://algorien.com`, manualChunks, sourcemap, babel-plugin-react-compiler
 - ✅ Theme personalitzat (colors porpra #8400ff / rosa #ec4899) a `theme.ts`
 - ✅ Gestió d'estudiants locals (crear, eliminar, persistència)
 - ✅ Home features animades amb containerVariants + cardVariants (stagger, direccional)
@@ -388,9 +392,10 @@ Login
 - `AuthContext` connectat a main.tsx, però StudentDashboard i Header encara fan servir localStorage directament (no usen `useAuth()`)
 - `authService.login()` NO té fallback local (només API, llança error si no disponible); `getMe()` sí té fallback a localStorage
 - `courseService.ts` té fallback a `data/courses.ts` quan l'API no respon (excepte `submitChallenge()`)
-- `api.ts` té un sistema híbrid (localStorage + API) per al progrés
+- `api.ts` té un sistema híbrid (localStorage + API) per al progrés, amb BASE_URL apuntant a `https://algorien.com/api`
 - `main.tsx` ara inclou tots els providers: BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider
-- `src/i18n.ts` (arrel) eliminat — `I18nProvider` s'encarrega d'inicialitzar i18next (ja no cal `import './i18n'` a main.tsx)
+- `src/i18n.ts` (arrel) és importat per `I18nContext.tsx` per inicialitzar i18next. Existeix un duplicat a `src/i18n/index.ts` que no s'importa des de cap lloc (deixat de la migració)
+- `src/App.css` existeix però no és importat des de cap fitxer (estils legacy no utilitzats)
 - Tots els components de StudentDashboard estan desacoblats a `features/student/`
 - El projecte utilitza Vite 6 amb `@` path alias
 - `ThemeContext`, `I18nContext`, `AuthContext` i `NotificationContext` usen `use(Context)` de React 19 en lloc de `useContext(Context)`
@@ -408,7 +413,7 @@ Login
 
 ## 6. APIs Utilitzades
 
-### API REST (Backend esperat a `API ISAAC`)
+### API REST (Backend esperat a `API ISAAC` — proxy Vite: `/api` → `https://algorien.com`)
 
 | Mètode | Endpoint | Ús | Servei |
 |--------|----------|-----|--------|
@@ -467,6 +472,7 @@ npm run preview      # Previsualitzar producció
 | Opció | Valor |
 |-------|-------|
 | Path alias | `@` → `./src` |
+| Proxy | `/api` → `https://algorien.com` (dev server) |
 | Sourcemaps | `true` (build) |
 | reportCompressedSize | `true` |
 | cssCodeSplit | `true` |

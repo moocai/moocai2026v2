@@ -28,7 +28,6 @@ export default defineConfig({
       '/api': {
         target: 'https://algorien.com',
         changeOrigin: true,
-        secure: true,
       }
     }
   },

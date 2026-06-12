@@ -109,6 +109,7 @@ export default {
     previous: "Anterior",
     next: "Siguiente",
     go_to_activity: "Ir a la actividad",
+    back: "Volver",
     lessons: "Lecciones",
     objective: "Anunciado",
     run: "EJECUTAR",

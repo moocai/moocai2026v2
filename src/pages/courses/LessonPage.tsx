@@ -38,6 +38,7 @@ export default function LessonPage() {
   const [wasSavedInSession, setWasSavedInSession] = useState(false);
   const [fadeKey] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [backHidden, setBackHidden] = useState(false);
 
   const lang = (i18n.language?.split('-')[0]) as 'ca' | 'es' | 'en';
   const getText = (field: any): string => {
@@ -69,7 +70,7 @@ export default function LessonPage() {
       const globalProgress = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
       const key = getGlobalProgressKey();
       if (globalProgress[key]) setStatus('pass'); else setStatus('idle');
-      setConsoleOutput([]); setIsDirty(false); setWasSavedInSession(false); setShowResultModal(false);
+      setConsoleOutput([]); setIsDirty(false); setWasSavedInSession(false); setShowResultModal(false); setBackHidden(false);
     }
   }, [baseLesson, currentUser, courseId, lessonId]);
 
@@ -156,10 +157,7 @@ export default function LessonPage() {
       {progressPercent > 0 && <Box sx={{ height: 4, bgcolor: 'action.hover' }}><Box sx={{ height: '100%', width: `${progressPercent}%`, bgcolor: 'primary.main' }} /></Box>}
       
       {/* Header */}
-      <Box sx={{ height: 48, borderColor: 'divider', display: 'flex', alignItems: 'center', px: 1, justifyContent: 'space-between', flexShrink: 0,mt:10}}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton onClick={() => navigate(-1)} sx={{ color: 'text.secondary' }}><ChevronLeft /></IconButton>
-        </Box>
+      <Box sx={{height: 48, borderColor: 'divider', display: 'flex', alignItems: 'center', px: 1, justifyContent: 'space-between', flexShrink: 0,mt:10}}>
       </Box>
 
       {/* Content - Vertical Stack */}
@@ -170,24 +168,21 @@ export default function LessonPage() {
           <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'primary.main' }}>{t('lesson.your_challenge')}</Typography>
             <Typography sx={{ fontFamily: 'monospace', fontSize: '0.8rem', fontWeight: 600 }}>{getText(exercise?.challenge) || getText(baseLesson.challenge)}</Typography>
-          </Box>
-        </Box>
-
-        {/* 2n: RENDER (Editor) */}
-        <Box sx={{ flex: courseId === 'Python' ? 1 : 'unset', height: courseId === 'Python' ? 'auto' : 170, display: 'flex', flexDirection: 'column', bgcolor: '#1e1e1e', width: '100%', flexShrink: 0 }}>
-        <Box sx={{ height: 28, px: 1.5, bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #333' }}>
-          <Typography sx={{ fontSize: 10, color: '#888', fontWeight: 600 }}>{t('lesson.app_file')}</Typography>
-        </Box>
-        <Box sx={{ flex: 1, p: 1, position: 'relative' }}>
-          {courseId === 'Python' && showResultModal ? (
-            <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, bgcolor: '#1e1e1e', display: 'flex', flexDirection: 'column', p: 1.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.5 }}>
-                <Button onClick={() => setShowResultModal(false)} sx={{ color: '#888', fontSize: 10, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>Tornar</Button>
-              </Box>
-              <Box sx={{ flex: 1, overflowY: 'auto' }}>
-                {consoleOutput.map((line, i) => (
-                  <Typography key={i} sx={{ fontFamily: 'monospace', fontSize: '0.85rem', mb: 0.5, color: line.includes('✅') || line.includes('🏆') || line.includes('💾') ? '#4ade80' : line.includes('❌') || line.includes('Revisa') ? '#f87171' : line.includes('SISTEMA') ? '#60a5fa' : '#aaa' }}>{'>'} {line}</Typography>
-                ))}
+                  </Box>
+                  {status === 'fail' && !backHidden && (
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Button onClick={() => { setShowResultModal(false); setBackHidden(true); }} sx={{ color: 'white', fontSize: 15, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>{t('lesson.back')}</Button>
+                  </Box>
+                  )}
+                </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <Box sx={{ flex: 1, p: 1, position: 'relative' }}>
+            {courseId === 'Python' && showResultModal ? (
+              <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, bgcolor: '#1e1e1e', display: 'flex', flexDirection: 'column', p: 1.5 }}>
+                <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                  {consoleOutput.map((line, i) => (
+                    <Typography key={i} sx={{ fontFamily: 'monospace', fontSize: '0.85rem', mb: 0.5, color: line.includes('✅') || line.includes('🏆') || line.includes('💾') ? '#4ade80' : line.includes('❌') || line.includes('Revisa') ? '#f87171' : line.includes('SISTEMA') ? '#60a5fa' : '#aaa' }}>{'>'} {line}</Typography>
+                  ))}
                   {(() => {
                     const raw: any[] = JSON.parse(localStorage.getItem(`mooc_submissions_${courseId}_${lessonId}`) || '[]');
                     const others = raw.filter(s => s.studentId !== currentUser?.id).slice(0, 5);
@@ -201,14 +196,22 @@ export default function LessonPage() {
                       </>
                     );
                   })()}
+                </Box>
               </Box>
+            ) : (
+              <textarea 
+                value={userInput} 
+                onChange={(e) => { setUserInput(e.target.value); setIsDirty(true); }} 
+                style={{ width: '100%', height: '100%', background: 'transparent', color: '#b5e853', fontFamily: "'Fira Code', monospace", border: 'none', resize: 'none', fontSize: '0.85rem', outline: 'none' }} 
+              />
+            )}
+          </Box>
+          {courseId === 'Python' && status === 'fail' && !showResultModal && (
+            <Box sx={{ maxHeight: 120, overflowY: 'auto', bgcolor: '#111', borderTop: '1px solid', borderColor: 'divider', p: 1 }}>
+              {consoleOutput.map((line, i) => (
+                <Typography key={i} sx={{ fontFamily: 'monospace', fontSize: '0.75rem', color: line.includes('✅') || line.includes('🏆') || line.includes('💾') ? '#4ade80' : line.includes('❌') || line.includes('Revisa') ? '#f87171' : line.includes('SISTEMA') ? '#60a5fa' : '#aaa' }}>{'>'} {line}</Typography>
+              ))}
             </Box>
-          ) : (
-            <textarea 
-              value={userInput} 
-              onChange={(e) => { setUserInput(e.target.value); setIsDirty(true); }} 
-              style={{ width: '100%', height: '100%', background: 'transparent', color: '#b5e853', fontFamily: "'Fira Code', monospace", border: 'none', resize: 'none', fontSize: '0.85rem', outline: 'none' }} 
-            />
           )}
         </Box>
       </Box>
@@ -248,8 +251,6 @@ export default function LessonPage() {
           <ChevronRight size={20}/>
         </IconButton>
       </Box>
-
-      </Box>
     </Box>
   );
 }
@@ -275,7 +276,7 @@ export default function LessonPage() {
             <Typography sx={{ fontSize: '1rem', fontWeight: 700, mb: 3 , mt:3 }}>{getText(baseLesson.title)}</Typography>
             <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: '3px solid', borderColor: alpha(theme.palette.primary.main, 0.5), mt:5}}>
               <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>{t('lesson.objective')}</Typography>
-              <Typography sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{getText(exercise?.challenge) || getText(baseLesson.challenge)}</Typography>
+              <Typography sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{getText(exercise?.challengeShort) || getText(baseLesson.challenge)}</Typography>
             </Box>
           </Box>
           {/* Points */}
@@ -316,7 +317,10 @@ export default function LessonPage() {
                         ))}
                       </>
                     );
-                  })()}
+                    })()}
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Button onClick={() => setShowResultModal(false)} sx={{ color: '#888', fontSize: 10, minWidth: 0, p: 0.5, '&:hover': { color: '#fff' } }}>{t('lesson.back')}</Button>
+                  </Box>
                 </Box>
               </Box>
             ) : (

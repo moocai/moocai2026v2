@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Course, Lesson, Student } from '../types';
 import { courses as localCourses } from '../data/courses';
 
-const API_URL = 'https://algorien.com/api/v1';
+const API_URL = '/api/v1/courses/';
 
 const getLocalFallback = async (): Promise<{ courses: Course[]; students: Student[] }> => {
   const mapped: Course[] = localCourses.map(c => ({
@@ -44,7 +44,7 @@ export const courseService = {
   
   async getAllCourses(): Promise<Course[]> {
     try {
-      const { data } = await api.get('/courses/');
+      const { data } = await api.get('/');
       return data; 
     } catch (error) {
       console.warn("⚠️ Mode Proves: L'API no respon, demanant dades al JSON...");

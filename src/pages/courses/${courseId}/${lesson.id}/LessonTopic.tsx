@@ -141,16 +141,13 @@ export default function LessonTopic() {
                 {t('lesson.your_challenge')}
               </Typography>
               <Typography sx={{ fontSize: '1rem', fontWeight: 600, fontFamily: 'monospace', color: 'text.primary' }}>
-                {getText(exercise?.challenge) || getText(lesson.challenge)}
+                {getText(exercise?.challengeShort) || getText(exercise?.challenge) || getText(lesson.challenge)}
               </Typography>
             </Box>
             {exercise && (
               <Box sx={{ mt: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), borderRadius: 2, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.15), maxWidth: '500px' }}>
                 <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'text.secondary' }}>
                   {t('lesson.objective')}
-                </Typography>
-                <Typography sx={{ fontSize: '0.9rem', color: 'text.primary', lineHeight: 1.5 }}>
-                  {getText(exercise.exerciseInstructions)}
                 </Typography>
               </Box>
             )}
