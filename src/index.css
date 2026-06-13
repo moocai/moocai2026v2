@@ -20,7 +20,9 @@
   --scrollbar-thumb: #8400ff;
 }
 
-::-webkit-scrollbar {width: 4px;}
+::-webkit-scrollbar {width: 6px;}
 ::-webkit-scrollbar-track {background: var(--scrollbar-track);}
-::-webkit-scrollbar-thumb {background: var(--scrollbar-thumb);}
+::-webkit-scrollbar-thumb {background: var(--scrollbar-thumb); border-radius: 4px;}
 ::-webkit-scrollbar-thumb:hover {background: #8400ff;}
+
+* {scrollbar-width: thin; scrollbar-color: #8400ff var(--scrollbar-track);}

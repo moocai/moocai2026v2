@@ -1,4 +1,4 @@
-import { createContext, use, useState, ReactNode, useMemo } from 'react';
+import { createContext, use, useState, useEffect, ReactNode, useMemo } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { getTheme } from '../theme/theme';
@@ -24,9 +24,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return 'dark';
   });
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode);
+  }, [mode]);
+
   const setMode = (newMode: ThemeMode) => {
     setModeState(newMode);
     localStorage.setItem(STORAGE_KEY, newMode);
+    document.documentElement.setAttribute('data-theme', newMode);
   };
 
   const toggleTheme = () => {

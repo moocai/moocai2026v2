@@ -181,8 +181,6 @@ export default function CourseLessons() {
           py: 6,
           overflowY: 'auto',
           height: 'calc(100vh - 64px)',
-          '&::-webkit-scrollbar': { width: 6 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 3 }
         }}>
           {/* Mobile syllabus toggle */}
           <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 3 }}>
