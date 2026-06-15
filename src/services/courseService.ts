@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Course, Lesson, Student } from '../types';
+import { Course, Student } from '../types';
 
 /* ------------------------------------------------------------------ */
 /*  Tipus per als objectes de l'API                                    */

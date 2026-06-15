@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, BookOpen} from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -6,6 +6,7 @@ import { Box, Typography, Button, IconButton, CircularProgress, useTheme, useMed
 import { useTranslation } from 'react-i18next';
 
 import { exercises as localExercises } from '../../../../data/exercises';
+import { courseService } from '../../../../services/courseService';
 
 // Tipus per a suportar multiidioma (ca, es, en)
 type I18nField = { ca: string; es: string; en: string };
@@ -34,8 +35,16 @@ export default function LessonTopic() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { i18n, t } = useTranslation();
-  const [apiData] = useState<DataStructure | null>(() => ({ courses: localCourses as any[] }));
-  const [loading] = useState(false);
+  const [apiData, setApiData] = useState<DataStructure | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courseId) return;
+    courseService.getFullCourseDetail(courseId)
+      .then(c => setApiData({ courses: [c] }))
+      .catch(() => setApiData(null))
+      .finally(() => setLoading(false));
+  }, [courseId]);
   const lang = (i18n.language?.split('-')[0] as keyof I18nField) || 'ca';
   const getText = (field: I18nField | string | Record<string, string> | undefined): string => {
     if (!field) return '';

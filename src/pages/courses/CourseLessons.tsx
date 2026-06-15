@@ -35,14 +35,12 @@ interface Course {
   disabled?: boolean;
 }
 
-interface DataStructure { courses: Course[]; }
-
 export default function CourseLessons() {
   const { courseId } = useParams<{ courseId: string }>();
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const [course, setCourse] = useState<any>(null);
+  const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lessonId') || null);
   const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
@@ -61,7 +59,7 @@ export default function CourseLessons() {
   useEffect(() => {
     if (!courseId || courseId === 'undefined') return;
     setLoading(true);
-    courseService.getFullCourseDetail(courseId).then(c => setCourse(c ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
+    courseService.getFullCourseDetail(courseId).then(c => setCourse(c as Course ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
   }, [courseId]);
 
   const defaultLessonId = course?.content?.[0]?.id ?? null;

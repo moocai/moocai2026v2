@@ -1,7 +1,6 @@
-import {Box, Stack, Typography} from '@mui/material';
-import {PlayCircle, CheckCircle2} from 'lucide-react';
-import {useTranslation} from 'react-i18next';
-import {Course, Topic} from './types';
+import { Box, Stack, Typography } from '@mui/material';
+import { PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Course, Topic } from './types';
 
 interface Props {
   course: Course;
@@ -13,8 +12,6 @@ interface Props {
 }
 
 export function CourseExpandedContent({ course, dbProgress, getText, getCourseTopics, onNavigate, theme }: Props) {
-  const { t } = useTranslation();
-
   return (
     <Box sx={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: '8px' }} onClick={(e) => e.stopPropagation()}>
       <Box sx={{ bgcolor: 'background.paper', borderRadius: { xs: 1, md: 0}, border: '1px solid', borderColor: 'primary.main' + '4D', maxHeight: '350px', overflowY: 'auto' }}>

@@ -8,11 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    react({
-      babel: {
-        plugins: [["babel-plugin-react-compiler", { target: "19" }]],
-      },
-    }),
+    react(),
   ],
   resolve: {
     alias: {
@@ -32,18 +28,9 @@ export default defineConfig({
     }
   },
   build: {
-    sourcemap: true, 
+    sourcemap: true,
     reportCompressedSize: true,
     cssCodeSplit: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-library': ['@mui/material', '@emotion/react', '@emotion/styled'],
-          'animations': ['framer-motion']
-        }
-      }
-    }
   },
   optimizeDeps: {
     include: [
