@@ -7,9 +7,7 @@ import {
 import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { courses as localCourses } from '../../data/courses';
-import { exercises as localExercises } from '../../data/exercises';
-
+import { courseService } from '../../services/courseService';
 
 type I18nField = { ca: string; es: string; en: string };
 
@@ -44,8 +42,8 @@ export default function CourseLessons() {
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const [apiData] = useState<DataStructure | null>(() => ({ courses: localCourses as any[] }));
-  const [loading] = useState(false);
+  const [course, setCourse] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lessonId') || null);
   const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
@@ -59,7 +57,13 @@ export default function CourseLessons() {
     window.addEventListener('lessonProgressUpdated', reSyncProgress);
     return () => window.removeEventListener('lessonProgressUpdated', reSyncProgress);
   }, [reSyncProgress]);
-  const course = apiData?.courses?.find(c => c.id === courseId);
+
+  useEffect(() => {
+    if (!courseId || courseId === 'undefined') return;
+    setLoading(true);
+    courseService.getFullCourseDetail(courseId).then(c => setCourse(c ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
+  }, [courseId]);
+
   const defaultLessonId = course?.content?.[0]?.id ?? null;
   const activeId = activeLessonId ?? defaultLessonId;
 
@@ -68,9 +72,11 @@ export default function CourseLessons() {
   useEffect(() => {
     const saved = sessionStorage.getItem(`scroll_${courseId}`);
     if (saved && scrollRef.current) {
-      scrollRef.current.scrollTop = parseInt(saved);
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo(0, parseInt(saved));
+      });
     }
-  }, [courseId]);
+  }, [courseId, course]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -78,7 +84,7 @@ export default function CourseLessons() {
     const save = () => sessionStorage.setItem(`scroll_${courseId}`, el.scrollTop.toString());
     el.addEventListener('scroll', save);
     return () => el.removeEventListener('scroll', save);
-  }, [courseId]);
+  }, [courseId, course]);
 
   const lang = (i18n.language?.split('-')[0] as keyof I18nField) || 'ca';
   const getText = (field: I18nField | string | undefined): string => {
@@ -343,7 +349,7 @@ export default function CourseLessons() {
 
                   {/* Exercise explanation */}
                   {(() => {
-                    const ex = localExercises.find(e => e.id === lesson.id && e.courseId === courseId);
+                    const ex = (lesson as any).subTopics?.[0];
                     if (!ex) return null;
                     return (
                       <Box sx={{ mb: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), borderRadius: 2, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.15) }}>
@@ -351,7 +357,7 @@ export default function CourseLessons() {
                           {t('lesson.objective')}
                         </Typography>
                         <Typography sx={{ fontSize: '0.9rem', color: 'text.primary'}}>
-                          {getText(ex.challenge as I18nField)}
+                          {getText(ex.text as I18nField)}
                         </Typography>
                       </Box>
                     );
@@ -360,7 +366,7 @@ export default function CourseLessons() {
                   {/* Anar a l'activitat */}
                   <Button
                     component={RouterLink}
-                    to={`/courses/${courseId}/${lesson.id}`}
+                    to={`/courses/${courseId}/${(lesson.subTopics?.[0] as any)?.problemSlug || lesson.id}`}
                     variant="contained"
                     sx={{ fontWeight: 700, borderRadius: 2, px: 4, py: 1.5, mt: 2 }}
                   >

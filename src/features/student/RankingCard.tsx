@@ -21,7 +21,7 @@ export function RankingCard({ courses, rankingTab, onRankingTabChange, rankedStu
 
   return (
     <>
-      <Stack direction="row" spacing={1} sx={{ mb: { xs: 2, md: 2 }, alignItems: 'center', mt: { xs: 10, md: 18}}}>
+      <Stack direction="row" spacing={1} sx={{ mb: { xs: 2, md: 2 }, alignItems: 'center', mt: { xs: 10, md: 12}}}>
         <Trophy size={22} color="#ffb700" />
         <Typography variant="h6" sx={{ fontWeight: 900 }}>{t('dashboard.ranking_title')}</Typography>
       </Stack>

@@ -4,7 +4,7 @@ import ParticlesBackground from './ParticlesBackground';
 import { Box, Container, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { courses as localCourses } from '../data/courses';
+import { courseService } from '../services/courseService';
 import { students as localStudents } from '../data/students';
 
 interface TypewriterProps {words: string[];}
@@ -37,6 +37,7 @@ export default function Hero() {
   }, []);
 
   const [studentCount, setStudentCount] = useState(getStudentCount);
+  const [courseCount, setCourseCount] = useState(0);
 
   useEffect(() => {
     const handler = () => setStudentCount(getStudentCount());
@@ -44,9 +45,13 @@ export default function Hero() {
     return () => window.removeEventListener('studentsUpdated', handler);
   }, [getStudentCount]);
 
+  useEffect(() => {
+    courseService.getAllCourses().then(c => setCourseCount(c.length)).catch(() => {});
+  }, []);
+
   const stats = [
     { label: t('hero.stats.students'), value: studentCount, delay: 0 },
-    { label: t('hero.stats.courses'), value: localCourses.filter((c: any) => !c.disabled).length, delay: 0.2 },
+    { label: t('hero.stats.courses'), value: courseCount, delay: 0.2 },
     { label: t('hero.stats.support'), value: '24/7', delay: 0.4 },
   ];
 

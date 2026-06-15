@@ -11,7 +11,7 @@ export interface Exercise {
 export const exercises: Exercise[] = [
   {
     id: "py-1",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "1. Introducció a Python", es: "1. Introducción a Python", en: "1. Introduction to Python" },
     challenge: { ca: "Imprimir per pantalla: Hello World entre cometes dobles com l'exemple", es: "Imprimir por pantalla: Hello, World", en: "print screen: Hello, World" },
     challengeShort: { ca: "Imprimir per pantalla: Hello World entre cometes dobles", es: "Imprimir por pantalla: Hello, World", en: "print screen: Hello, World" },
@@ -20,7 +20,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-2",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "2. Variables i Tipus", es: "2. Variables y Tipos", en: "2. Variables and Types" },
     challenge: { ca: "Crea una Variable amb el nom : edat ", es: "Crea una Variable con el nombre: edad", en: "Create Age Variable with name: edat" },
     challengeShort: { ca: "Variable Edat", es: "Variable Edad", en: "Age Variable" },
@@ -29,7 +29,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-3",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "3. Operadors Bàsics", es: "3. Operadores Básicos", en: "3. Basic Operators" },
     challenge: { ca: "Potència", es: "Potencia", en: "Power" },
     challengeShort: { ca: "Potència", es: "Potencia", en: "Power" },
@@ -38,7 +38,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-4",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "4. Strings i f-strings", es: "4. Strings y f-strings", en: "Strings and f-strings" },
     challenge: { ca: "f-string", es: "f-string", en: "f-string" },
     challengeShort: { ca: "f-string", es: "f-string", en: "f-string" },
@@ -47,7 +47,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-5",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "5. Llistes", es: "5. Listas", en: "5. Lists" },
     challenge: { ca: "Append", es: "Append", en: "Append" },
     challengeShort: { ca: "Append", es: "Append", en: "Append" },
@@ -56,7 +56,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-6",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "6. Condicionals", es: "6. Condicionales", en: "6. Conditionals" },
     challenge: { ca: "If", es: "If", en: "If" },
     challengeShort: { ca: "If", es: "If", en: "If" },
@@ -65,7 +65,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-7",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "7. Bucles (Loops)", es: "7. Bucles", en: "7. Loops" },
     challenge: { ca: "Range", es: "Range", en: "Range" },
     challengeShort: { ca: "Range", es: "Range", en: "Range" },
@@ -74,7 +74,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-8",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "8. Diccionaris i Tuples", es: "8. Diccionarios y Tuplas", en: "8. Dictionaries and Tuples" },
     challenge: { ca: "Dict", es: "Dict", en: "Dict" },
     challengeShort: { ca: "Dict", es: "Dict", en: "Dict" },
@@ -83,7 +83,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-9",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "9. Funcions", es: "9. Funciones", en: "9. Functions" },
     challenge: { ca: "Def", es: "Def", en: "Def" },
     challengeShort: { ca: "Def", es: "Def", en: "Def" },
@@ -92,7 +92,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-10",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "10. Gestió d'Errors", es: "10. Gestión de Errores", en: "10. Error Handling" },
     challenge: { ca: "Try", es: "Try", en: "Try" },
     challengeShort: { ca: "Try", es: "Try", en: "Try" },
@@ -101,7 +101,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-11",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "11. Classes i POO", es: "11. Clases y POO", en: "11. Classes and OOP" },
     challenge: { ca: "Class", es: "Class", en: "Class" },
     challengeShort: { ca: "Class", es: "Class", en: "Class" },
@@ -110,7 +110,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-12",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "12. Mòduls i PIP", es: "12. Módulos y PIP", en: "12. Modules and PIP" },
     challenge: { ca: "Import", es: "Import", en: "Import" },
     challengeShort: { ca: "Import", es: "Import", en: "Import" },
@@ -119,7 +119,7 @@ export const exercises: Exercise[] = [
   },
   {
     id: "py-13",
-    courseId: "Python",
+    courseId: "python-public-test",
     title: { ca: "13. Fitxers I/O", es: "13. Archivos I/O", en: "13. Files I/O" },
     challenge: { ca: "Open", es: "Open", en: "Open" },
     challengeShort: { ca: "Open", es: "Open", en: "Open" },

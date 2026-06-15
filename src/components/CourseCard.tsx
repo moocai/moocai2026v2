@@ -5,8 +5,9 @@ import {useNavigate} from 'react-router-dom';
 import {ArrowRight} from 'lucide-react';
 import { type MouseEvent } from 'react';
 import {useTranslation} from 'react-i18next';
+import { courseImages } from '../data/courses';
 
-interface Course {id: string;title: string | { ca: string; es: string; en: string }; description: string | { ca: string; es: string; en: string }; image: string; level: string; duration: string; instructor: string; logoSize?: number; logoWidth?: number; logoHeight?: number; disabled?: boolean;}
+interface Course {id: string;slug?: string;title: string | { ca: string; es: string; en: string }; description: string | { ca: string; es: string; en: string }; image: string; level: string; duration: string; instructor: string; logoSize?: number; logoWidth?: number; logoHeight?: number; disabled?: boolean;}
 
 function getLocalizedText(text: string | { ca: string; es: string; en: string }, lang: string): string {
   if (typeof text === 'string') return text;
@@ -43,7 +44,7 @@ export function CourseCard({ course, index }: CourseCardProps) {
               )}
               <motion.div whileHover={{ scale: 1.05, rotate: 2 }} transition={{ type: "spring", stiffness: 300 }}>
                 <Box
-                  component="img" src={course.image} alt={getLocalizedText(course.title, lang)}
+                  component="img" src={course.image || courseImages[course.slug || course.id] || ''} alt={getLocalizedText(course.title, lang)}
                   sx={{width: { xs: logoW * 0.65, md: logoW },height: { xs: logoH * 0.65, md: logoH }, objectFit: 'contain',filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3)) brightness(1.1)'}}/>
               </motion.div>
             </Box>

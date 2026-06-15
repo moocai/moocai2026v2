@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, BookOpen} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Box, Typography, Button, IconButton, CircularProgress, useTheme, useMediaQuery, alpha } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { courses as localCourses } from '../../../../data/courses';
+
 import { exercises as localExercises } from '../../../../data/exercises';
 
 // Tipus per a suportar multiidioma (ca, es, en)

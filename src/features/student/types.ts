@@ -21,6 +21,7 @@ export interface Topic {
 
 export interface Course {
   id: string;
+  slug?: string;
   title: any;
   topics?: Topic[];
   content?: Lesson[];

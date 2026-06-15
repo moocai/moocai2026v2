@@ -2,7 +2,7 @@
 
 ## Resum
 
-Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons heredats de React 17/18 i redundàncies, sense alterar l'estil visual ni la lògica de negoci. **Build: 0 errors. Última actualització: 4 de juny de 2026.**
+Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons heredats de React 17/18 i redundàncies, sense alterar l'estil visual ni la lògica de negoci. **Build: 0 errors. Última actualització: 15 de juny de 2026.**
 
 ---
 
@@ -91,6 +91,12 @@ Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons 
 
 ### 19. `courseService.ts` — fallback metadata buit
 - `level: 'Bàsic'` → `''`, `duration: '8 hores'` → `''`, `instructor: 'Professor'` → `''`
+
+### 20. `NotificationHub.tsx` — colors adaptatius dark/light
+- Afegit `useTheme` de MUI per detectar `theme.palette.mode`
+- **Dark**: `bgcolor="#141414"`, text/icona `white`
+- **Light**: `bgcolor="white"`, text/icona `#141414`
+- Barra de progrés amb gradient `#8400ff`
 
 ---
 

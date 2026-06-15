@@ -7,13 +7,10 @@ import { Box, Typography, Button, IconButton, Stack, alpha, CircularProgress, us
 import { api } from '../../services/api';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../../contexts/NotificationContext';
-import { courses as localCourses } from '../../data/courses';
-import { exercises as localExercises } from '../../data/exercises';
+import { courseService } from '../../services/courseService';
 
-interface Lesson { id: string; title: string | { ca: string; es: string; en: string }; description: string | { ca: string; es: string; en: string }; challenge: string | { ca: string; es: string; en: string }; initialCode: string | { ca: string; es: string; en: string }; solution: string | { ca: string; es: string; en: string }; exerciseInstructions?: string | { ca: string; es: string; en: string }; theoryInstructions?: string | { ca: string; es: string; en: string }; subTopics?: { subtitle: string | { ca: string; es: string; en: string }; text: string | { ca: string; es: string; en: string }; exampleCode: string; }[]; }
-interface Course { id: string; title: string | { ca: string; es: string; en: string }; content: Lesson[]; }
+interface Lesson { id: string; title: string | { ca: string; es: string; en: string }; description: string | { ca: string; es: string; en: string }; challenge: string | { ca: string; es: string; en: string }; initialCode: string | { ca: string; es: string; en: string }; solution: string | { ca: string; es: string; en: string }; exerciseInstructions?: string | { ca: string; es: string; en: string }; theoryInstructions?: string | { ca: string; es: string; en: string }; subTopics?: { subtitle: string | { ca: string; es: string; en: string }; text: string | { ca: string; es: string; en: string }; exampleCode: string; problemSlug?: string; precode?: string; solution?: string; }[]; }
 interface Student { id: string; name: string; }
-interface DataStructure { courses: Course[]; students: Student[]; }
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const { t, i18n } = useTranslation();
@@ -22,8 +19,8 @@ export default function LessonPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { addNotification } = useNotifications();
-  const [apiData] = useState<DataStructure | null>(() => ({ courses: localCourses as any[], students: [] }));
-  const [loading] = useState(false);
+  const [course, setCourse] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [currentUser] = useState<Student | null>(() => {
     const saved = localStorage.getItem('currentStudent');
     return saved ? JSON.parse(saved) : null;
@@ -47,16 +44,21 @@ export default function LessonPage() {
     return field[lang] || field['ca'] || '';
   };
 
-  const course = apiData?.courses?.find((c) => c.id === courseId);
-  const baseLesson = course?.content?.find((l) => l.id === lessonId);
-  const exercise = localExercises.find(e => e.id === lessonId && e.courseId === courseId);
+  const currentProblem = course?.content?.flatMap((t: any) => t.subTopics || []).find((s: any) => s.problemSlug === lessonId);
+  const isPythonCourse = course?.id === 'python-public-test' || courseId === 'python-public-test';
+
+  useEffect(() => {
+    if (!courseId || courseId === 'undefined') return;
+    setLoading(true);
+    courseService.getFullCourseDetail(courseId).then(c => setCourse(c ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
+  }, [courseId]);
 
   const handlePrevious = () => {
     if (course) navigate(`/courses/${course.id}`);
   };
   const handleNext = () => {
     if (!course) return;
-    const idx = course.content?.findIndex((l) => l.id === lessonId) ?? -1;
+    const idx = course.content?.findIndex((l: Lesson) => l.id === lessonId) ?? -1;
     const nextId = idx >= 0 && idx < course.content.length - 1 ? course.content[idx + 1].id : null;
     navigate(`/courses/${course.id}${nextId ? `?lessonId=${nextId}` : ''}`);
   };
@@ -64,15 +66,15 @@ export default function LessonPage() {
   const getGlobalProgressKey = () => `${courseId}_${lessonId}`;
 
   useEffect(() => {
-    if (baseLesson) {
+    if (currentProblem) {
       const savedCode = localStorage.getItem(codeStorageKey);
-      setUserInput(savedCode || exercise?.initialCode || getText(baseLesson.initialCode) || '');
+      setUserInput(savedCode || currentProblem?.precode || '');
       const globalProgress = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
       const key = getGlobalProgressKey();
       if (globalProgress[key]) setStatus('pass'); else setStatus('idle');
       setConsoleOutput([]); setIsDirty(false); setWasSavedInSession(false); setShowResultModal(false); setBackHidden(false);
     }
-  }, [baseLesson, currentUser, courseId, lessonId]);
+  }, [currentProblem, currentUser, courseId, lessonId]);
 
   // Auto-save every 10 seconds when user is typing
   useEffect(() => {
@@ -116,7 +118,7 @@ export default function LessonPage() {
   const handleRunTests = () => {
     setConsoleOutput(["[SISTEMA]: Executant..."]);
     const cleanUser = userInput.replace(/\s+/g, '').trim();
-    const cleanSol = (exercise?.solution || getText(baseLesson?.solution)).replace(/\s+/g, '').trim() || "";
+    const cleanSol = (currentProblem?.solution || '').replace(/\s+/g, '').trim() || "";
     setTimeout(() => {
       const passed = cleanUser.includes(cleanSol);
       if (passed) {
@@ -124,7 +126,7 @@ export default function LessonPage() {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
         handleSaveProgress(true);
       } else { setStatus('fail'); setConsoleOutput(p => [...p, "❌ Revisa el codi"]); }
-      if (courseId === 'Python') {
+      if (isPythonCourse) {
         if (currentUser) {
           const key = `mooc_submissions_${courseId}_${lessonId}`;
           const existing = JSON.parse(localStorage.getItem(key) || '[]');
@@ -145,9 +147,9 @@ export default function LessonPage() {
   };
 
   if (loading) return <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}><CircularProgress color="secondary" /></Box>;
-  if (!course || !baseLesson) return null;
+  if (!course || !currentProblem) return null;
 
-  const globalProgress = course?.content?.reduce((acc, lesson) => acc + (JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')[`${courseId}_${lesson.id}`] ? 1 : 0), 0) ?? 0;
+  const globalProgress = course?.content?.reduce((acc: number, lesson: Lesson) => acc + (JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')[`${courseId}_${lesson.id}`] ? 1 : 0), 0) ?? 0;
   const progressPercent = course?.content?.length ? (globalProgress / course.content.length) * 100 : 0;
 
   // MOBILE LAYOUT - Optimized for xs
@@ -167,7 +169,7 @@ export default function LessonPage() {
         <Box sx={{ width: '100%', bgcolor: 'background.paper', p: 2, borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0}}>
           <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'primary.main' }}>{t('lesson.your_challenge')}</Typography>
-            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.8rem', fontWeight: 600 }}>{getText(exercise?.challenge) || getText(baseLesson.challenge)}</Typography>
+            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.8rem', fontWeight: 600 }}>{currentProblem?.text || ''}</Typography>
                   </Box>
                   {status === 'fail' && !backHidden && (
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
@@ -177,7 +179,7 @@ export default function LessonPage() {
                 </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <Box sx={{ flex: 1, p: 1, position: 'relative' }}>
-            {courseId === 'Python' && showResultModal ? (
+            {isPythonCourse && showResultModal ? (
               <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, bgcolor: '#1e1e1e', display: 'flex', flexDirection: 'column', p: 1.5 }}>
                 <Box sx={{ flex: 1, overflowY: 'auto' }}>
                   {consoleOutput.map((line, i) => (
@@ -206,7 +208,7 @@ export default function LessonPage() {
               />
             )}
           </Box>
-          {courseId === 'Python' && status === 'fail' && !showResultModal && (
+          {isPythonCourse && status === 'fail' && !showResultModal && (
             <Box sx={{ maxHeight: 120, overflowY: 'auto', bgcolor: '#111', borderTop: '1px solid', borderColor: 'divider', p: 1 }}>
               {consoleOutput.map((line, i) => (
                 <Typography key={i} sx={{ fontFamily: 'monospace', fontSize: '0.75rem', color: line.includes('✅') || line.includes('🏆') || line.includes('💾') ? '#4ade80' : line.includes('❌') || line.includes('Revisa') ? '#f87171' : line.includes('SISTEMA') ? '#60a5fa' : '#aaa' }}>{'>'} {line}</Typography>
@@ -216,7 +218,7 @@ export default function LessonPage() {
         </Box>
       </Box>
 
-        {courseId !== 'Python' && (
+        {!isPythonCourse && (
         /* 3r: PROMPT (Console) */
         <Box sx={{ height: 170, display: 'flex', flexDirection: 'column', width: '100%', bgcolor: '#000', borderTop: '1px solid', borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
         <Box sx={{ height: 22, px: 1.5, bgcolor: '#111', display: 'flex', alignItems: 'center' }}>
@@ -273,10 +275,10 @@ export default function LessonPage() {
         {/* COLUMNA 1: Enunciat (18%) */}
         <Box sx={{ width: '20%', borderRight: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
           <Box sx={{ flex: 1, p: 2, overflowY: 'auto'}}>
-            <Typography sx={{ fontSize: '1rem', fontWeight: 700, mb: 3 , mt:3 }}>{getText(baseLesson.title)}</Typography>
-            <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: '3px solid', borderColor: alpha(theme.palette.primary.main, 0.5), mt:5}}>
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>{t('lesson.objective')}</Typography>
-              <Typography sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{getText(exercise?.challengeShort) || getText(baseLesson.challenge)}</Typography>
+      <Typography sx={{ fontSize: '1rem', fontWeight: 700, mb: 3 , mt:3 }}>{getText(currentProblem?.subtitle)}</Typography>
+      <Box sx={{ p: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1, border: '3px solid', borderColor: alpha(theme.palette.primary.main, 0.5), mt:5}}>
+        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>{t('lesson.objective')}</Typography>
+        <Typography sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{currentProblem?.text || ''}</Typography>
             </Box>
           </Box>
           {/* Points */}
@@ -288,7 +290,7 @@ export default function LessonPage() {
         </Box>
 
         {/* COLUMNA 2: Editor (57%) - reduced header */}
-        <Box ref={contentRef} sx={{ flex: courseId === 'Python' ? 1 : 'unset', width: courseId === 'Python' ? '80%' : '40%', display: 'flex', flexDirection: 'column', bgcolor: '#1e1e1e', minHeight: 0 }}>
+        <Box ref={contentRef} sx={{ flex: isPythonCourse ? 1 : 'unset', width: isPythonCourse ? '80%' : '40%', display: 'flex', flexDirection: 'column', bgcolor: '#1e1e1e', minHeight: 0 }}>
           <Box sx={{ height: 40, px: 2, bgcolor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #333' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Typography sx={{ fontSize: 11, color: '#888', fontWeight: 500 }}>{t('lesson.app_file')}</Typography>
@@ -299,7 +301,7 @@ export default function LessonPage() {
             </Box>
           </Box>
           <motion.div key={fadeKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ flex: 1, display: 'flex', position: 'relative' }}>
-            {courseId === 'Python' && showResultModal ? (
+            {isPythonCourse && showResultModal ? (
               <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, bgcolor: '#1e1e1e', display: 'flex', flexDirection: 'column', p: 2 }}>
                 <Box sx={{ flex: 1, overflowY: 'auto' }}>
                   {consoleOutput.map((line, i) => (
@@ -330,7 +332,7 @@ export default function LessonPage() {
           </motion.div>
         </Box>
 
-        {courseId !== 'Python' && (
+        {!isPythonCourse && (
         /* COLUMNA 3: Console (25%) - reduced header */
         <Box sx={{ width: '40%', borderLeft: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper', minHeight: 0 }}>
           <Box sx={{ height: 40, px: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>

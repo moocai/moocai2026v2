@@ -1,5 +1,5 @@
 # MOOC React 2026
-**Última actualització: 12 de juny de 2026**
+**Última actualització: 15 de juny de 2026**
 ---
 
 ## 1. Tecnologies i Dependències
@@ -31,6 +31,7 @@ src/
 ├── App.css                         # Estils CSS legacy (no importat des de cap fitxer)
 ├── App.tsx                         # Router principal amb rutes (Home, Courses, Dashboard)
 ├── env.d.ts                        # Declaracions de tipus per a fitxers estàtics (.css, .svg, .png, .webp)
+├── i18n.ts                         # Configuració i18next principal (importat per I18nContext.tsx)
 ├── index.css                       # Scrollbar styling, CSS variables, animació shake
 ├── main.tsx                        # Punt d'entrada (BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider)
 │
@@ -56,7 +57,7 @@ src/
 │   └── ThemeContext.tsx            # Tema clar/fosc (persistència localStorage clau mooc-theme-mode)
 │
 ├── data/                           # Dades estàtiques
-│   ├── courses.ts                  # Cursos (Python 13 lliçons, React 2, Spring Boot 2 deshab., ML 2 deshab.)
+│   ├── courses.ts                  # 4 image mappings per als cursos (Python, React, Spring Boot, ML)
 │   ├── exercises.ts                # 19 exercicis (13 Python, 2 React, 2 Spring Boot, 2 ML) amb initialCode + solution
 │   └── students.ts                 # 3 estudiants predefinits (Marc/1, Jordi/2, Miquel/3)
 │
@@ -87,12 +88,10 @@ src/
 │   └── useTheme.ts                 # Re-exporta ThemeProvider + useThemeMode
 │
 ├── i18n/                           # Traduccions
-│   ├── ca.ts                       # Català (auth, dashboard, home, hero, footer, course, lesson)
+│   ├── ca.ts                       # Català (auth, dashboard, home, hero, footer, course, lesson + 9 notifications)
 │   ├── en.ts                       # Anglès
 │   ├── es.ts                       # Castellà
 │   └── index.ts                    # Configuració i18next duplicada (no importat des de cap lloc)
-│
-├── i18n.ts                         # Configuració i18next principal (importat per I18nContext.tsx)
 │
 ├── layouts/                        # Layouts per a rutes
 │   ├── MainLayout.tsx              # Header + Outlet
@@ -117,7 +116,7 @@ src/
 ├── services/                       # Capa d'accés a dades
 │   ├── api.ts                      # Client axios (progress CRUD híbrid local + API, BASE_URL: https://algorien.com/api)
 │   ├── authService.ts              # Login/logout/getMe (només API, sense fallback local)
-│   ├── courseService.ts            # CRUD cursos/lliçons amb fallback a data/courses.ts
+│   ├── courseService.ts            # CRUD cursos/lliçons amb 2 instàncies axios (publicApi + api auth)
 │   └── teacherService.ts           # (BUIT)
 │
 ├── theme/
@@ -163,7 +162,7 @@ src/
 
 | Fitxer | Funció actual | Per fer |
 |--------|---------------|---------|
-| `main.tsx` | Renderitza `<App />` amb BrowserRouter (v7_startTransition + v7_relativeSplatPath) + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider | (completat) |
+| `main.tsx` | Renderitza `<App />` amb BrowserRouter (v7 future flags) + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider | (completat) |
 | `App.tsx` | Router: rutes `/` (Home), `/courses/:courseId` (CourseLessons), `/courses/:courseId/:lessonId` (LessonPage), `/dashboards/student` (StudentDashboard). MainLayout wrapper per courses i dashboard | (completat) |
 
 ### Components (`src/components/`)
@@ -201,7 +200,7 @@ src/
 
 | Fitxer | Interfície | Contingut |
 |--------|-----------|-----------|
-| `courses.ts` | `Course`, `LessonContent`, `SubTopic` | 4 cursos: Python (13 lliçons), React (2 lliçons), Spring Boot (2, deshabilitat), Machine Learning (2, deshabilitat). Cada lliçó amb subtopics multiidioma i exampleCode |
+| `courses.ts` | — | 4 image mappings (`python-public-test`, `React`, `springboot`, `MachineLearning`) |
 | `exercises.ts` | `Exercise` | 19 exercicis (13 Python, 2 React, 2 Spring Boot, 2 ML) amb `initialCode`, `solution`, `challenge`, `exerciseInstructions` multiidioma |
 | `students.ts` | `Student` | 3 estudiants predefinits amb PIN: Marc (1), Jordi (2), Miquel (3) |
 
@@ -212,7 +211,7 @@ src/
 | `types.ts` | `Student`, `Lesson`, `Topic`, `Course` | Interfícies compartides (Student amb role opcional) |
 | `Login.tsx` | `Login` | Role toggle (student/teacher), create-user form (name, email, PIN), grid de StudentCards, rep `students` com a prop (fusionat al pare), gestió usuaris locals + IDs eliminats via localStorage |
 | `CourseCard.tsx` | `CourseCard` | `onToggle`, `onResetCourse`, `onNavigate`, rep `course`, `isExpanded`, `dbProgress`, disabled overlay |
-| `CourseExpandedContent.tsx` | `CourseExpandedContent` | Tabs syllabus/activities, llista lliçons amb icones (BookOpen/CheckCircle/PlayCircle), posicionament absolut (motion eliminat, ara Box) |
+| `CourseExpandedContent.tsx` | `CourseExpandedContent` | Tabs syllabus/activities, llista lliçons amb icones (BookOpen/CheckCircle/PlayCircle), posicionament absolut (Box) |
 | `CourseIcon.tsx` | `CourseIcon` | Retorna icona Lucide (Terminal, Globe, Cpu, Layers, Database, Code2) segons el nom del curs |
 | `ProgressOverview.tsx` | `ProgressOverview` | Barres `LinearProgress` per curs amb percentatge (hoverBg light/dark) |
 | `RankingCard.tsx` | `RankingCard` | Tabs per curs, llistat ordenat per progrés, usuari actiu destacat, icones Trophy (hoverBg light/dark) |
@@ -245,14 +244,14 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 |--------|---------|---------|---------------|
 | `api.ts` | `api` | `getStudentProgress(studentId)` (fusiona local + API), `postProgress(data)` (local + intent API), `resetCourse(studentId, courseId)` (local + API) | `GET /api/progress/{id}`, `POST /api/progress`, `DELETE /api/progress/{sid}/{cid}` |
 | `authService.ts` | `authService` | `login(credentials)` (només API, sense fallback local), `logout()`, `getMe()` (API amb fallback localStorage), `getCurrentUser()` | `POST /api/users/auth/login/`, `POST /api/users/auth/logout/`, `GET /api/users/me/settings/` |
-| `courseService.ts` | `courseService` | `getAllCourses()`, `getCourseBySlug(slug)`, `getCourseLessons(slug)`, `getCourseStudents(slug)`, `submitChallenge(...)` | `GET /api/v1/courses/`, `GET /api/v1/courses/{slug}/`, `GET /api/v1/courses/{slug}/topics/`, `GET /api/v1/courses/{slug}/students/`, `POST /api/v1/courses/{slug}/topics/{t}/problems/{p}/submissions/` |
+| `courseService.ts` | `courseService` | `getAllCourses()`, `getCourseBySlug(slug)`, `getCourseAvatar(slug)`, `getCourseTopics(slug)`, `getTopic(courseSlug, topicSlug)`, `getTopicProblems(courseSlug, topicSlug)`, `getProblem(...)`, `submitChallenge(...)`, `getCourseStudents(slug)`, `getFullCourseDetail(slug)` — usa 2 instàncies axios (publicApi + api amb token) | `GET /api/v1/public/courses/`, `GET /api/v1/courses/{slug}/`, `GET /api/v1/courses/{slug}/topics/`, `GET /api/v1/courses/{slug}/students/`, `POST /api/v1/courses/{slug}/topics/{t}/problems/{p}/submissions/` |
 | `teacherService.ts` | (BUIT) | | |
 
 ### Theme (`src/theme/`)
 
 | Fitxer | Exportacions | Colors |
 |--------|-------------|--------|
-| `theme.ts` | `getTheme(mode)` | **Dark**: primary `#8400ff` (porpra), secondary `#ec4899` (rosa), bg `#0a0a0a`; **Light**: primary `#8400ff`, secondary `#ec4899`, bg `white`. Font Inter, borderRadius 12px |
+| `theme.ts` | `getTheme(mode)` | **Dark**: primary `#8400ff` (porpra), secondary `#ec4899` (rosa), bg `#141414`; **Light**: primary `#8400ff`, secondary `#ec4899`, bg `white`. Font Inter, borderRadius 12px |
 
 ### Hooks (`src/hooks/`)
 
@@ -271,11 +270,13 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 | `validators.ts` | `validatePin(student, pin)`, `validateRequiredFields(fields)`, `isValidPin(pin)` (4-digit regex), `isValidEmail(email)`, `validateCodeSolution(userInput, expectedSolution)` (whitespace-normalized) |
 
 ### Notificacions
+
 - `NotificationContext.tsx`: Context amb `NotificationProvider` i hook `useNotifications()`.
 - `NotificationHub.tsx` (`src/components/ui/NotificationHub.tsx`): Component UI separat que renderitza toasts amb:
   - `useTransition` de react-spring per animació d'entrada/sortida (`translateX(100%)`)
-  - Barra de progrés animada amb `useSpring` (2000ms, gradient `#00f2ff → #00d4ff`)
-  - `Alert` de MUI amb `variant="filled"`, `bgcolor="#546067"`
+  - Barra de progrés animada amb `useSpring` (2000ms, gradient `#8400ff`)
+  - `Alert` de MUI amb `variant="filled"`
+  - Colors adaptatius al mode: **Dark** → `bgcolor="#141414"`, text/icona `white`; **Light** → `bgcolor="white"`, text/icona `#141414`
   - Botó de tancar amb `lucide-react X`
 - Durada de 2000ms amb neteja automàtica via `setTimeout` i tancament manual
 - Les notificacions estan traduïdes als 3 idiomes amb clau `notifications.*` (9 claus: progress_saved, progress_error, account_created, user_deleted, incorrect_pin, welcome, session_closed, course_reset, course_reset_error)
@@ -285,9 +286,9 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 | Fitxer | Seccions |
 |--------|----------|
-| `ca.ts` (127 línies) | auth, dashboard, home (features, why_choose), hero (stats, subtitle, scroll_down), footer (brand_tagline, explore, community, connect, copyright), course (enroll, by), common (errors), **notifications (9 claus)**, lesson (syllabus, run, debug, objective, challenge, points, etc.) |
-| `es.ts` (133 línies) | Mateixes seccions en castellà |
-| `en.ts` (129 línies) | Mateixes seccions en anglès |
+| `ca.ts` (130 línies) | auth, dashboard, home, hero, footer, course, common, **notifications (9 claus)**, lesson (syllabus, run, debug, objective, challenge, points, etc.) |
+| `es.ts` (136 línies) | Mateixes seccions en castellà |
+| `en.ts` (132 línies) | Mateixes seccions en anglès |
 | `index.ts` (24 línies) | Configuració i18next duplicada (no importada des de cap lloc). La configuració real es carrega des de `src/i18n.ts`, importada per `I18nContext.tsx` |
 
 ---
@@ -296,11 +297,9 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 ### Fonts de Dades
 
-1. **`src/data/courses.ts`** - Font principal de dades de cursos (usada per CourseLessons, LessonTopic, StudentDashboard, Hero stats)
-2. **`src/data/exercises.ts`** - Dades d'exercicis (usada per LessonPage, LessonTopic)
-3. **`src/data/students.ts`** - Estudiants predefinits (usada per StudentDashboard/Login)
-4. **API REST** - `API ISAAC` (amb fallback a dades locals si no respon per courseService)
-5. **localStorage** - Claus:
+1. **`src/data/`** - Image mappings per cursos (courses.ts), exercicis (exercises.ts 19 items), estudiants predefinits (students.ts 3 items)
+2. **API REST** - `API ISAAC` (amb proxy Vite `/api` → `https://algorien.com`). `courseService.ts` usa 2 instàncies axios: `publicApi` (sense auth) per cursos públics, `api` (amb Token header) per endpoints autenticats
+3. **localStorage** - Claus:
    - `mooc_global_progress` - Progrés de lliçons completades (`{courseId_lessonId: true}`)
    - `code_{userId}_{courseId}_{lessonId}` - Codi guardat per usuari/lliçó
    - `points_{userId}` - Punts acumulats
@@ -364,14 +363,14 @@ Login
 - ✅ Components UI (Header amb menú mòbil, Hero amb typewriter + stats dinàmiques via event `studentsUpdated`, Footer, CourseCard amb motion, ParticlesBackground)
 - ✅ Context d'idioma (I18nProvider) + suport multiidioma (CA/ES/EN) - Provider connectat a main.tsx
 - ✅ Context de tema (ThemeContext) + mode clar/fosc (persistit a localStorage)
-- ✅ Context de notificacions (NotificationContext) + toast notifications
+- ✅ Context de notificacions (NotificationContext) + toast notifications amb colors adaptatius dark/light
 - ✅ Context d'autenticació (AuthContext) - Provider connectat a main.tsx
 - ✅ StudentDashboard complet (login/create-user, perfil, progrés, rànquing, cursos expansibles)
 - ✅ CourseLessons (layout 3 columnes amb syllabus accordion animat + contingut + anchor links, drawer mòbil)
 - ✅ LessonPage (editor codi amb 4 modes, tests per inclusió, confetti, submissions, localStorage, inline Python fail console panel, result modal només en passar)
 - ✅ LessonTopic (vista teòrica amb sidebar lliçons + explicació + challenge + navegació)
-- ✅ Serveis API amb fallback local (courseService) o sense (authService)
-- ✅ Dades estàtiques completes (courses.ts 13 lliçons Python, exercises.ts 19 exercicis, students.ts)
+- ✅ Serveis API amb fallback local (api.ts) o sense (authService.ts). courseService.ts amb 2 instàncies axios (publicApi + api auth)
+- ✅ Dades estàtiques completes (exercises.ts 19 exercicis, students.ts 3 usuaris, course image mappings)
 - ✅ Utils (formatters, validators, sx compositor)
 - ✅ `main.tsx` i `App.tsx` - Connectats amb BrowserRouter (v7 flags), StyledEngineProvider, ThemeProvider, I18nProvider, AuthProvider, NotificationProvider
 - ✅ `MainLayout.tsx` - En ús com a layout route (Header + Outlet)
@@ -381,6 +380,8 @@ Login
 - ✅ Home features animades amb containerVariants + cardVariants (stagger, direccional)
 - ✅ CourseLessons sidebar accordions amb motion slide-in seqüencial
 - ✅ Adaptació hoverBg a StudentProfileCard, ProgressOverview, RankingCard per mode light/dark
+- ✅ `NotificationHub.tsx` amb colors adaptatius: **Dark** bg `#141414`, text/icona `white`; **Light** bg `white`, text/icona `#141414`
+- ✅ `index.css` amb scrollbar personalitzada: track `#f5f5f5` (light) / `#0a0a0a` (dark), thumb `#8400ff`
 
 ### Per Implementar
 - ❌ Pàgines de teacher (Courses, Dashboard, Exercises, Students)
@@ -391,7 +392,7 @@ Login
 ### Observacions
 - `AuthContext` connectat a main.tsx, però StudentDashboard i Header encara fan servir localStorage directament (no usen `useAuth()`)
 - `authService.login()` NO té fallback local (només API, llança error si no disponible); `getMe()` sí té fallback a localStorage
-- `courseService.ts` té fallback a `data/courses.ts` quan l'API no respon (excepte `submitChallenge()`)
+- `courseService.ts` usa 2 instàncies axios: `publicApi` (baseURL `/api/v1/public/courses/`, sense auth) i `api` (baseURL `/api/v1/courses/`, amb Token header). NO té fallback a `data/courses.ts`
 - `api.ts` té un sistema híbrid (localStorage + API) per al progrés, amb BASE_URL apuntant a `https://algorien.com/api`
 - `main.tsx` ara inclou tots els providers: BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider
 - `src/i18n.ts` (arrel) és importat per `I18nContext.tsx` per inicialitzar i18next. Existeix un duplicat a `src/i18n/index.ts` que no s'importa des de cap lloc (deixat de la migració)
@@ -400,14 +401,16 @@ Login
 - El projecte utilitza Vite 6 amb `@` path alias
 - `ThemeContext`, `I18nContext`, `AuthContext` i `NotificationContext` usen `use(Context)` de React 19 en lloc de `useContext(Context)`
 - `babel-plugin-react-compiler` està configurat a `vite.config.ts` amb `target: "19"`
-- `NotificationContext.tsx` i `NotificationHub.tsx` gestionen les toast notifications amb animacions react-spring, MUI Alert, i auto-remove 2000ms
-- Inconsistència de color de fons: MUI theme usa `#141414` en mode fosc, ParticlesBackground usa `#0a0a0a`
+- `NotificationContext.tsx` i `NotificationHub.tsx` gestionen les toast notifications amb animacions react-spring, MUI Alert, i auto-remove 2000ms. Colors adaptatius al mode dark/light
+- Inconsistència de color de fons: MUI theme usa `#141414` en mode fosc, ParticlesBackground usa `#0a0a0a`, scrollbar usa `#0a0a0a` en dark
 - S'ha afegit `"react-is": "19.0.0"` com a override a `package.json` per compatibilitat MUI v9
 - `Hero.tsx` ara mostra recompte d'estudiants dinàmic (escolta event `studentsUpdated`), en lloc d'un valor estàtic
 - `Login.tsx` ja no gestiona internament la fusió d'estudiants — rep `students` com a prop des de `StudentDashboard`
 - `StudentDashboard.tsx` dispara `studentsUpdated` en crear/eliminar usuaris per mantenir sincronitzat el Hero
 - S'ha integrat `NotificationContext` a `LessonPage.tsx` i `StudentDashboard.tsx` per feedback visual d'usuari
 - Les notificacions del context ara estan traduïdes als 3 idiomes via `t('notifications.*')` amb interpolació
+- `LessonTopic.tsx` fa referència a `localCourses` que no està definit al fitxer (potencial bug)
+- `courseService.ts` té implementació completa amb `getFullCourseDetail()` que combina course + topics + problems en una sola crida
 
 ---
 
@@ -423,11 +426,15 @@ Login
 | POST | `/api/users/auth/login/` | Login usuari | `authService.ts` |
 | POST | `/api/users/auth/logout/` | Logout usuari | `authService.ts` |
 | GET | `/api/users/me/settings/` | Obtenir dades de l'usuari | `authService.ts` |
-| GET | `/api/v1/courses/` | Llistat de cursos | `courseService.ts` |
+| GET | `/api/v1/public/courses/` | Llistat públic de cursos | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/` | Detalls d'un curs | `courseService.ts` |
+| GET | `/api/v1/courses/{slug}/avatar/` | Avatar d'un curs | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/topics/` | Lliçons d'un curs | `courseService.ts` |
-| GET | `/api/v1/courses/{slug}/students/` | Estudiants d'un curs | `courseService.ts` |
+| GET | `/api/v1/courses/{slug}/topics/{topic}/` | Detall d'un tema | `courseService.ts` |
+| GET | `/api/v1/courses/{slug}/topics/{topic}/problems/` | Problemes d'un tema | `courseService.ts` |
+| GET | `/api/v1/courses/{slug}/topics/{topic}/problems/{problem}/` | Detall d'un problema | `courseService.ts` |
 | POST | `/api/v1/courses/{slug}/topics/{topic}/problems/{problem}/submissions/` | Enviar solució | `courseService.ts` |
+| GET | `/api/v1/courses/{slug}/students/` | Estudiants d'un curs | `courseService.ts` |
 
 ### APIs de Tercers / Llibreries
 
