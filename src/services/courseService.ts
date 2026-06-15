@@ -1,80 +1,18 @@
 import axios from 'axios';
-import { Course, Student } from '../types';
+import { Course } from '../types';
 
 /* ------------------------------------------------------------------ */
-/*  Tipus per als objectes de l'API                                    */
+/* Configuració d'URL (Blindada)                                     */
 /* ------------------------------------------------------------------ */
+// Utilitzem 'as any' per evitar l'error de TypeScript de "Property 'env' does not exist"
+const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'https://algorien.com';
 
-export interface ApiCourse {
-  slug: string;
-  name: string;
-  professors: string[];
-  allows_coding: boolean;
-  allows_tests: boolean;
-  allows_challenges: boolean;
-  active: boolean;
-  is_public: boolean;
-  max_ai_hints_per_day: number | null;
-  ai_reviews_enabled: boolean;
-}
-
-export interface ApiTopic {
-  id: number;
-  slug: string;
-  name: string;
-  locked: boolean;
-  current: boolean;
-  is_exam: boolean;
-  is_archived: boolean;
-}
-
-export interface ApiProblem {
-  id: number;
-  slug: string;
-  type: 'coding' | 'test';
-  difficulty: string;
-  hidden: boolean;
-  is_archived: boolean;
-  score: number;
-  precode: string;
-  title: string;
-  title_ca: string;
-  title_es: string;
-  title_en: string;
-  statementHtml: string;
-  statement_ca: string;
-  statement_es: string;
-  statement_en: string;
-  checks: any[];
-  examples: any[];
-  system_solution: { id: number; language: string; code: string };
-  choices?: { id: number; text: string; correct: boolean; order: number }[];
-  choice_type?: 'multiple' | 'single';
-}
-
-export interface Submission {
-  id: number;
-  code: string;
-  result: string;
-  passed: boolean;
-  created_at: string;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Instàncies d'axios                                                 */
-/* ------------------------------------------------------------------ */
-
-const publicApi = axios.create({
-  baseURL: '/api/v1/public/courses/',
+const apiClient = axios.create({
+  baseURL: `${API_BASE_URL}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
 });
 
-const api = axios.create({
-  baseURL: '/api/v1/courses/',
-  headers: { 'Content-Type': 'application/json' },
-});
-
-api.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Token ${token}`;
@@ -83,126 +21,83 @@ api.interceptors.request.use((config) => {
 });
 
 /* ------------------------------------------------------------------ */
-/*  Funcions auxiliars                                                 */
+/* Servei                                                            */
 /* ------------------------------------------------------------------ */
-
-const mapApiCourse = (c: ApiCourse): Course => ({
-  id: c.slug,
-  slug: c.slug,
-  title: c.name,
-  description: '',
-  image: '',
-  level: '',
-  duration: '',
-  instructor: '',
-});
-
-/* ------------------------------------------------------------------ */
-/*  Servei                                                             */
-/* ------------------------------------------------------------------ */
-
 export const courseService = {
-
-  /* ---------- Cursos ---------- */
-
+  
   async getAllCourses(): Promise<Course[]> {
-    const { data } = await publicApi.get<ApiCourse[]>('/');
-    return data.map(mapApiCourse);
+    const { data } = await apiClient.get('/public/courses/');
+    // Comprovació per assegurar que rebem un array
+    const list = Array.isArray(data) ? data : (data.results || []);
+    
+    return list.map((c: any) => ({
+      id: c.slug,
+      slug: c.slug,
+      title: c.name,
+      description: '',
+      image: '',
+      level: '',
+      duration: '',
+      instructor: '',
+    }));
   },
 
-  async getCourseBySlug(slug: string): Promise<ApiCourse> {
-    const { data } = await api.get<ApiCourse>(`/${slug}/`);
+  async getCourseBySlug(slug: string): Promise<any> {
+    const { data } = await apiClient.get(`/courses/${slug}/`);
     return data;
   },
 
-  async getCourseAvatar(slug: string): Promise<Blob> {
-    const { data } = await api.get(`/${slug}/avatar/`, { responseType: 'blob' });
-    return data;
+  async getCourseTopics(slug: string): Promise<any[]> {
+    const { data } = await apiClient.get(`/courses/${slug}/topics/`);
+    return Array.isArray(data) ? data : (data.results || []);
   },
 
-  /* ---------- Topics ---------- */
-
-  async getCourseTopics(slug: string): Promise<ApiTopic[]> {
-    const { data } = await api.get<ApiTopic[]>(`/${slug}/topics/`);
-    return data;
+  async getTopicProblems(courseSlug: string, topicSlug: string): Promise<any[]> {
+    const { data } = await apiClient.get(`/courses/${courseSlug}/topics/${topicSlug}/problems/`);
+    return Array.isArray(data) ? data : (data.results || []);
   },
 
-  async getTopic(courseSlug: string, topicSlug: string): Promise<ApiTopic> {
-    const { data } = await api.get<ApiTopic>(`/${courseSlug}/topics/${topicSlug}/`);
-    return data;
-  },
-
-  /* ---------- Problemes ---------- */
-
-  async getTopicProblems(courseSlug: string, topicSlug: string): Promise<ApiProblem[]> {
-    const { data } = await api.get<ApiProblem[]>(`/${courseSlug}/topics/${topicSlug}/problems/`);
-    return data;
-  },
-
-  async getProblem(courseSlug: string, topicSlug: string, problemSlug: string): Promise<ApiProblem> {
-    const { data } = await api.get<ApiProblem>(`/${courseSlug}/topics/${topicSlug}/problems/${problemSlug}/`);
-    return data;
-  },
-
-  /* ---------- Submissions ---------- */
-
-  async submitChallenge(
-    courseSlug: string,
-    topicSlug: string,
-    problemSlug: string,
-    code: string,
-  ): Promise<Submission> {
-    const { data } = await api.post<Submission>(
-      `/${courseSlug}/topics/${topicSlug}/problems/${problemSlug}/submissions/`,
-      { code },
+  async submitChallenge(courseSlug: string, topicSlug: string, problemSlug: string, code: string): Promise<any> {
+    const { data } = await apiClient.post(
+      `/courses/${courseSlug}/topics/${topicSlug}/problems/${problemSlug}/submissions/`, 
+      { code }
     );
     return data;
   },
-
-  /* ---------- Estudiants ---------- */
-
-  async getCourseStudents(slug: string): Promise<Student[]> {
-    const { data } = await api.get<Student[]>(`/${slug}/students/`);
-    return data;
-  },
-
-  /* ---------- Enriquit (per al dashboard) ---------- */
 
   async getFullCourseDetail(slug: string): Promise<any> {
     try {
       const courseData = await this.getCourseBySlug(slug);
       const topics = await this.getCourseTopics(slug);
+
       const content = await Promise.all(
-        topics.map(async (topic) => {
+        topics.map(async (topic: any) => {
           const problems = await this.getTopicProblems(slug, topic.slug);
           return {
             id: topic.slug,
             title: topic.name,
-            subTopics: problems.map((p) => ({
+            subTopics: Array.isArray(problems) ? problems.map((p: any) => ({
               subtitle: p.title,
-              text: p.statement_ca || p.statementHtml,
-              exampleCode: p.system_solution?.code || '',
+              text: p.statement_ca || p.statementHtml || '',
               problemSlug: p.slug,
               type: p.type,
               precode: p.precode,
               solution: p.system_solution?.code || '',
               score: p.score,
               difficulty: p.difficulty,
-              checks: p.checks,
-              choices: p.choices,
-              choiceType: p.choice_type,
-            })),
+            })) : [],
           };
-        }),
+        })
       );
-      return {
-        ...courseData,
-        id: courseData.slug || slug,
-        title: courseData.name,
-        content,
+
+      return { 
+        ...courseData, 
+        id: courseData.slug, 
+        title: courseData.name, 
+        content 
       };
     } catch (err) {
-      console.error("getFullCourseDetail error:", err);
+      console.error("Error al carregar el detall del curs:", err);
       throw err;
     }
   },
