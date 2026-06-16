@@ -7,41 +7,16 @@ import {
 import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { courseService } from '../../services/courseService';
+import { useCourse } from '../../hooks/useCourse';
 
 type I18nField = { ca: string; es: string; en: string };
-
-interface SubTopic {
-  subtitle: I18nField | string;
-  text: I18nField | string;
-  exampleCode: string;
-}
-
-interface Lesson {
-  id: string;
-  title: I18nField | string;
-  description: I18nField | string;
-  theoryInstructions: I18nField | string;
-  challenge: I18nField | string;
-  solution: string;
-  subTopics?: SubTopic[];
-}
-
-interface Course {
-  id: string;
-  title: I18nField | string;
-  description: I18nField | string;
-  content: Lesson[];
-  disabled?: boolean;
-}
 
 export default function CourseLessons() {
   const { courseId } = useParams<{ courseId: string }>();
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const [course, setCourse] = useState<Course | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: course, isLoading: loading } = useCourse(courseId);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lessonId') || null);
   const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
@@ -55,12 +30,6 @@ export default function CourseLessons() {
     window.addEventListener('lessonProgressUpdated', reSyncProgress);
     return () => window.removeEventListener('lessonProgressUpdated', reSyncProgress);
   }, [reSyncProgress]);
-
-  useEffect(() => {
-    if (!courseId || courseId === 'undefined') return;
-    setLoading(true);
-    courseService.getFullCourseDetail(courseId).then(c => setCourse(c as Course ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
-  }, [courseId]);
 
   const defaultLessonId = course?.content?.[0]?.id ?? null;
   const activeId = activeLessonId ?? defaultLessonId;
@@ -92,7 +61,7 @@ export default function CourseLessons() {
   };
 
   if (loading) return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+    <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', zIndex: 9999 }}>
       <CircularProgress color="primary" />
     </Box>
   );
@@ -120,6 +89,12 @@ export default function CourseLessons() {
           display: { xs: 'none', md: 'block' },
           bgcolor: 'background.paper',
           pt: 4,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          maxHeight: 'calc(100vh - 64px)',
+          '&::-webkit-scrollbar': { width: 6 },
+          '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
+          '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 3 },
         }}>
           <Box sx={{ px: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

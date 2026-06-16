@@ -7,9 +7,9 @@ import { Box, Typography, Button, IconButton, Stack, alpha, CircularProgress, us
 import { api } from '../../services/api';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { useCourse } from '../../hooks/useCourse';
 import { courseService } from '../../services/courseService';
 
-interface Lesson { id: string; title: string | { ca: string; es: string; en: string }; description: string | { ca: string; es: string; en: string }; challenge: string | { ca: string; es: string; en: string }; initialCode: string | { ca: string; es: string; en: string }; solution: string | { ca: string; es: string; en: string }; exerciseInstructions?: string | { ca: string; es: string; en: string }; theoryInstructions?: string | { ca: string; es: string; en: string }; subTopics?: { subtitle: string | { ca: string; es: string; en: string }; text: string | { ca: string; es: string; en: string }; exampleCode: string; problemSlug?: string; precode?: string; solution?: string; }[]; }
 interface Student { id: string; name: string; }
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
@@ -19,8 +19,7 @@ export default function LessonPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { addNotification } = useNotifications();
-  const [course, setCourse] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: course, isLoading: loading } = useCourse(courseId);
   const [currentUser] = useState<Student | null>(() => {
     const saved = localStorage.getItem('currentStudent');
     return saved ? JSON.parse(saved) : null;
@@ -47,18 +46,12 @@ export default function LessonPage() {
   const currentProblem = course?.content?.flatMap((t: any) => t.subTopics || []).find((s: any) => s.problemSlug === lessonId);
   const isPythonCourse = course?.id === 'python-public-test' || courseId === 'python-public-test';
 
-  useEffect(() => {
-    if (!courseId || courseId === 'undefined') return;
-    setLoading(true);
-    courseService.getFullCourseDetail(courseId).then(c => setCourse(c ?? null)).catch(() => setCourse(null)).finally(() => setLoading(false));
-  }, [courseId]);
-
   const handlePrevious = () => {
     if (course) navigate(`/courses/${course.id}`);
   };
   const handleNext = () => {
     if (!course) return;
-    const idx = course.content?.findIndex((l: Lesson) => l.id === lessonId) ?? -1;
+    const idx = course.content?.findIndex((l: any) => l.id === lessonId) ?? -1;
     const nextId = idx >= 0 && idx < course.content.length - 1 ? course.content[idx + 1].id : null;
     navigate(`/courses/${course.id}${nextId ? `?lessonId=${nextId}` : ''}`);
   };
@@ -103,6 +96,13 @@ export default function LessonPage() {
           setConsoleOutput(p => [...p, `🏆 +10 Punts! (Total: ${newPoints})`]);
         }
       }
+      localStorage.setItem('mooc_last_session', JSON.stringify({
+        courseId,
+        lessonId,
+        courseTitle: getText(course?.title),
+        lessonTitle: getText(currentProblem?.subtitle),
+        timestamp: Date.now(),
+      }));
       setIsDirty(false); setWasSavedInSession(true);
       setConsoleOutput(p => [...p, "💾 Sincronitzat!"]);
       await api.postProgress({ studentId: currentUser.id, courseId, lessonId, status: globalProgress[key] || false });
@@ -115,27 +115,38 @@ export default function LessonPage() {
     finally { setIsSaving(false); }
   };
 
-  const handleRunTests = () => {
+  const handleRunTests = async () => {
     setConsoleOutput(["[SISTEMA]: Executant..."]);
-    const cleanUser = userInput.replace(/\s+/g, '').trim();
-    const cleanSol = (currentProblem?.solution || '').replace(/\s+/g, '').trim() || "";
-    setTimeout(() => {
-      const passed = cleanUser.includes(cleanSol);
+    setStatus('idle');
+    try {
+      const topic = course?.content?.find((t: any) =>
+        t.subTopics?.some((s: any) => s.problemSlug === lessonId)
+      );
+      if (!topic) throw new Error('Topic not found');
+
+      const result = await courseService.submitChallenge(
+        courseId!,
+        topic.id,
+        lessonId!,
+        userInput
+      );
+
+      const passed = result?.status === 'correct' || result?.passed === true;
+      setConsoleOutput(p => [...p, result?.feedback || (passed ? "✅ COMPLETAT!" : "❌ Revisa el codi")]);
+
       if (passed) {
-        setStatus('pass'); setConsoleOutput(p => [...p, "✅ COMPLETAT! Molt bé, pots continuar!"]);
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
-        handleSaveProgress(true);
-      } else { setStatus('fail'); setConsoleOutput(p => [...p, "❌ Revisa el codi"]); }
-      if (isPythonCourse) {
-        if (currentUser) {
-          const key = `mooc_submissions_${courseId}_${lessonId}`;
-          const existing = JSON.parse(localStorage.getItem(key) || '[]');
-          existing.unshift({ studentId: currentUser.id, studentName: currentUser.name, passed, timestamp: Date.now() });
-          localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
-        }
-        setShowResultModal(true);
+        setStatus('pass');
+        requestAnimationFrame(() => {
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+          handleSaveProgress(true);
+        });
+      } else {
+        setStatus('fail');
       }
-    }, 800);
+    } catch (err) {
+      setConsoleOutput(p => [...p, "❌ Error de connexió amb el servidor"]);
+      setStatus('fail');
+    }
   };
 
   const handleOpenConsole = () => {
@@ -146,10 +157,10 @@ export default function LessonPage() {
     newWindow.document.close();
   };
 
-  if (loading) return <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}><CircularProgress color="secondary" /></Box>;
+  if (loading) return <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', zIndex: 9999 }}><CircularProgress color="secondary" /></Box>;
   if (!course || !currentProblem) return null;
 
-  const globalProgress = course?.content?.reduce((acc: number, lesson: Lesson) => acc + (JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')[`${courseId}_${lesson.id}`] ? 1 : 0), 0) ?? 0;
+  const globalProgress = course?.content?.reduce((acc: number, lesson: any) => acc + (JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')[`${courseId}_${lesson.id}`] ? 1 : 0), 0) ?? 0;
   const progressPercent = course?.content?.length ? (globalProgress / course.content.length) * 100 : 0;
 
   // MOBILE LAYOUT - Optimized for xs

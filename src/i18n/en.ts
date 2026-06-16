@@ -8,7 +8,9 @@ export default {
     access: "Login",
     enroll_login_required: "You must log in to enroll in the course"
   },
-  dashboard: {
+    dashboard: {
+    last_session: "Last session",
+    continue: "Continue",
     title: "Student Dashboard",
     subtitle: "Manage your learning and check your progress",
     my_progress: "My Progress",

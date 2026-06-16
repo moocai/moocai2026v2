@@ -1,7 +1,7 @@
 import {useState, useEffect, useMemo, useCallback, type FormEvent, type MouseEvent} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Loader2} from 'lucide-react';
-import {Box, Container, Typography, Stack, Alert, useTheme} from '@mui/material';
+
+import {Box, Container, Typography, Stack, Alert, CircularProgress} from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {api} from '../../services/api';
 import {useTranslation} from 'react-i18next';
@@ -19,7 +19,6 @@ import { exercises as localExercises } from '../../data/exercises';
 
 export default function StudentDashboard() {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [loading, setLoading] = useState(true);
@@ -28,7 +27,9 @@ export default function StudentDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [dbProgress, setDbProgress] = useState<Record<string, boolean>>({});
+  const [dbProgress, setDbProgress] = useState<Record<string, boolean>>(
+    () => JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')
+  );
   const [errorId, setErrorId] = useState<string | null>(null);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [rankingTab, setRankingTab] = useState(0);
@@ -216,7 +217,11 @@ export default function StudentDashboard() {
     return [...students].sort((a, b) => getCourseProgress(currentCourse, b.id) - getCourseProgress(currentCourse, a.id));
   }, [students, allCourses, rankingTab, getCourseProgress]);
 
-  if (loading) return <Box sx={{ display: 'flex', bgcolor: 'background.default', alignItems: 'center', justifyContent: 'center', width: '100vw', height: '90vh' }}><Loader2 className="animate-spin" color={theme.palette.primary.main} size={48} /></Box>;
+  if (loading) return (
+    <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', zIndex: 9999 }}>
+      <CircularProgress color="primary" />
+    </Box>
+  );
 
   return (
        <Box sx={{ bgcolor: 'background.default', color: 'text.primary', width: '100%', maxWidth: '100vw', minHeight: '90vh', display: 'flex', flexDirection: 'column' }}>

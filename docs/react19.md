@@ -2,7 +2,7 @@
 
 ## Resum
 
-Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons heredats de React 17/18 i redundàncies, sense alterar l'estil visual ni la lògica de negoci. **Build: 0 errors. Última actualització: 15 de juny de 2026.**
+Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons heredats de React 17/18 i redundàncies, sense alterar l'estil visual ni la lògica de negoci. **Build: 0 errors. Última actualització: 16 de juny de 2026.**
 
 ---
 
@@ -94,9 +94,55 @@ Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons 
 
 ### 20. `NotificationHub.tsx` — colors adaptatius dark/light
 - Afegit `useTheme` de MUI per detectar `theme.palette.mode`
-- **Dark**: `bgcolor="#141414"`, text/icona `white`
-- **Light**: `bgcolor="white"`, text/icona `#141414`
+- **Dark**: `bgcolor="#141424"`, text/icona `white`
+- **Light**: `bgcolor="white"`, text/icona `#141424`
 - Barra de progrés amb gradient `#8400ff`
+
+### 21. `@tanstack/react-query` — Cache centralitzada de cursos (16 juny)
+- **Nova dependència**: `@tanstack/react-query ^5.101.0` afegida a `package.json`
+- **`QueryClientProvider`** afegit a `main.tsx` com a wrapper superior (abans de BrowserRouter)
+  - `staleTime: 5 min`, `gcTime: 30 min`, `retry: 1`, `refetchOnWindowFocus: false`
+- **Nou hook**: `src/hooks/useCourse.ts` — `useCourse(courseId)` amb `useQuery`
+  - `queryKey: ['course', courseId]` per cachejar detalls de curs
+  - `prefetchCourse(queryClient, courseId)` per prefetching on hover
+- **`CourseCard.tsx`** (Home): Afegit `onMouseEnter` → `prefetchCourse()` per carregar curs en background al fer hover
+- **`CourseLessons.tsx`**: Substituït `useState` + `useEffect` + `courseService.getFullCourseDetail()` per `useCourse(courseId)`
+- **`LessonPage.tsx`**: Substituït `useState` + `useEffect` per `useCourse(courseId)`
+- **Motiu**: Centralitzar la cache de cursos, evitar re-fetches en navegació, prefetching predictiu
+
+### 22. `api.ts` — Simplificat a localStorage només (16 juny)
+- Eliminada dependència d'`axios` a `api.ts`
+- `getStudentProgress`: Ja no fa petició API — només llegeix `mooc_global_progress` de localStorage
+- `postProgress`: Ja no intenta POST a l'API — només escriu a localStorage i dispara event `lessonProgressUpdated`
+- `resetCourse`: Ja no fa DELETE a l'API — només neteja clues de localStorage
+- **Motiu**: L'API de progrés no estava disponible consistentment; es prioritza l'experiència offline/local
+
+### 23. `LessonPage.tsx` — `handleRunTests` async amb API real (16 juny)
+- `handleRunTests` canviat de síncron a `async`
+- Ara envia el codi al backend via `courseService.submitChallenge()` amb `POST /api/v1/courses/{slug}/topics/{topic}/problems/{problem}/submissions/`
+- El resultat es determina per `result.status === 'correct'` o `result.passed === true`
+- Confeti reduït a 30 partícules (abans 100)
+- Error de connexió mostra missatge a la consola
+- **`handleSaveProgress`**: Desa `mooc_last_session` a localStorage per a la funcionalitat "Continuar"
+
+### 24. `CourseExpandedContent.tsx` — "Última sessió" + continuar (16 juny)
+- Llegeix `mooc_last_session` de localStorage al renderitzar
+- Mostra icona `PlayCircle` taronja (`#ff9800`) per la lliçó de l'última sessió activa no completada
+- **Motiu**: UX perquè l'usuari sàpiga on ho va deixar
+
+### 25. `StudentDashboard.tsx` — Loading spinner + initializer (16 juny)
+- `Loader2` de lucide-react substituït per `CircularProgress` de MUI
+- `useTheme` eliminat (ja no necessari per al spinner)
+- `dbProgress` ara fa lazy initialization des de `localStorage`
+- Loading state: `position: fixed, inset: 0, zIndex: 9999`
+
+### 26. `CourseLessons.tsx` + `LessonPage.tsx` — Loading state fullscreen (16 juny)
+- Spinner canviat a `position: fixed, inset: 0, zIndex: 9999` en comptes de layout inline
+- Evita salt de layout mentre carrega
+
+### 27. Traduccions noves (16 juny)
+- **`dashboard.last_session`**: "Última sessió" (CA/ES) / "Last session" (EN)
+- **`dashboard.continue`**: "Continuar" (CA/ES) / "Continue" (EN)
 
 ---
 
@@ -158,6 +204,8 @@ src/services/teacherService.ts
 | `package.json` | ✅ `react@^19.2.7`, `@types/react@^19.2.16` |
 | `tsconfig.json` | ✅ `"jsx": "react-jsx"` |
 | `vite.config.ts` | ✅ `babel-plugin-react-compiler` amb `target: "19"` |
+| `@tanstack/react-query` | ✅ `^5.101.0` |
+| `@vitejs/plugin-react` | ✅ `^5.2.0` (upgraded from `^4.3.0`) |
 | `index.html` | ✅ HTML genèric |
 
 ---
@@ -170,6 +218,7 @@ src/services/teacherService.ts
 "@types/react": "^19.2.16"      → 19.2.16
 "@types/react-dom": "^19.2.3"   → 19.2.3
 "react-router-dom": "^6.30.3"   → 6.30.4
+"@tanstack/react-query": "^5.101.0" → 5.101.0
 ```
 
 **Override**: `"react-is": "19.0.0"` (per compatibilitat MUI v9)

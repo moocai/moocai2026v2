@@ -45,8 +45,8 @@ export function CourseCard({
       
       <Card 
         component={motion.div}
-        sx={{ 
-          p: { xs: 2, md: 4 }, 
+        sx={{
+          p: { xs: 2, md: 3 }, 
           cursor: 'default', 
           borderRadius: { xs: 1.5, md: 1 }, 
           bgcolor: 'background.paper', 

@@ -10,6 +10,7 @@ const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'https://algorien.
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -67,8 +68,10 @@ export const courseService = {
 
   async getFullCourseDetail(slug: string): Promise<any> {
     try {
-      const courseData = await this.getCourseBySlug(slug);
-      const topics = await this.getCourseTopics(slug);
+      const [courseData, topics] = await Promise.all([
+        this.getCourseBySlug(slug),
+        this.getCourseTopics(slug),
+      ]);
 
       const content = await Promise.all(
         topics.map(async (topic: any) => {

@@ -1,5 +1,5 @@
 # MOOC React 2026
-**Última actualització: 15 de juny de 2026**
+**Última actualització: 16 de juny de 2026**
 ---
 
 ## 1. Tecnologies i Dependències
@@ -12,15 +12,16 @@
 | **Estils** | @emotion/react, @emotion/styled | ^11.14.0 / ^11.14.1 | Estils CSS-in-JS |
 | **Icons** | @mui/icons-material + lucide-react | ^9.0.0 / ^0.577.0 | Icones |
 | **Routing** | react-router-dom | ^6.30.3 | Navegació SPA (v7 future flags) |
+| **Cache/Query** | @tanstack/react-query | ^5.101.0 | Cache de dades de curs i prefetching |
 | **Animacions** | framer-motion + @react-spring/web | ^12.38.0 / ^10.1.0 | Animacions declaratives |
 | **Internacionalització** | i18next + react-i18next + i18next-browser-languagedetector | ^26.0.6 / ^17.0.4 / ^8.2.1 | Multiidioma (CA, ES, EN) |
-| **HTTP** | axios | ^1.15.0 | Peticions a API REST |
+| **HTTP** | axios | ^1.15.0 | Peticions a API REST (courseService) |
 | **Confetti** | canvas-confetti | ^1.9.2 | Animació en completar lliçons |
 | **React Compiler** | babel-plugin-react-compiler | ^1.0.0 | Optimització React 19 |
 | **Util** | clsx, class-variance-authority | ^2.1.1 / ^0.7.1 | Classes condicionals |
 | **Util** | tailwind-merge, tailwindcss-animate, tw-animate-css | ^3.5.0 / ^1.0.7 / ^1.4.0 | Utilitats Tailwind (instal·lades) |
 | **Tipus** | TypeScript | ^5.5.0 | Tipat estàtic |
-| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss | ^4.3.0 / ^8.4.0 / ^10.4.0 / ^3.4.0 | Configuració build |
+| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss | ^5.2.0 / ^8.4.0 / ^10.4.0 / ^3.4.0 | Configuració build |
 
 ---
 
@@ -33,7 +34,7 @@ src/
 ├── env.d.ts                        # Declaracions de tipus per a fitxers estàtics (.css, .svg, .png, .webp)
 ├── i18n.ts                         # Configuració i18next principal (importat per I18nContext.tsx)
 ├── index.css                       # Scrollbar styling, CSS variables, animació shake
-├── main.tsx                        # Punt d'entrada (BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider)
+├── main.tsx                        # Punt d'entrada (QueryClientProvider + BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider)
 │
 ├── components/                     # Components reutilitzables
 │   ├── CourseCard.tsx              # Targeta de curs (Home) amb motion animations
@@ -83,6 +84,7 @@ src/
 │       └── StudentTable.tsx
 │
 ├── hooks/                          # Hooks personalitzats
+│   ├── useCourse.ts                # Hook TanStack Query per cachejar detalls de curs + prefetch
 │   ├── useI18n.ts                  # Re-exporta I18nProvider + useI18n
 │   ├── useTeacherData.ts           # (BUIT)
 │   └── useTheme.ts                 # Re-exporta ThemeProvider + useThemeMode
@@ -114,9 +116,9 @@ src/
 │       └── Students.tsx
 │
 ├── services/                       # Capa d'accés a dades
-│   ├── api.ts                      # Client axios (progress CRUD híbrid local + API, BASE_URL: https://algorien.com/api)
+│   ├── api.ts                      # Gestió progrés localStorage només (sense axios, get/post/reset via mooc_global_progress)
 │   ├── authService.ts              # Login/logout/getMe (només API, sense fallback local)
-│   ├── courseService.ts            # CRUD cursos/lliçons amb 2 instàncies axios (publicApi + api auth)
+│   ├── courseService.ts            # CRUD cursos/lliçons amb axios (apiClient amb timeout 10s + Token header)
 │   └── teacherService.ts           # (BUIT)
 │
 ├── theme/
@@ -162,7 +164,7 @@ src/
 
 | Fitxer | Funció actual | Per fer |
 |--------|---------------|---------|
-| `main.tsx` | Renderitza `<App />` amb BrowserRouter (v7 future flags) + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider | (completat) |
+| `main.tsx` | Renderitza `<App />` amb QueryClientProvider + BrowserRouter (v7 future flags) + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider | (completat) |
 | `App.tsx` | Router: rutes `/` (Home), `/courses/:courseId` (CourseLessons), `/courses/:courseId/:lessonId` (LessonPage), `/dashboards/student` (StudentDashboard). MainLayout wrapper per courses i dashboard | (completat) |
 
 ### Components (`src/components/`)
@@ -242,9 +244,9 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 | Fitxer | Objecte | Mètodes | API Endpoints |
 |--------|---------|---------|---------------|
-| `api.ts` | `api` | `getStudentProgress(studentId)` (fusiona local + API), `postProgress(data)` (local + intent API), `resetCourse(studentId, courseId)` (local + API) | `GET /api/progress/{id}`, `POST /api/progress`, `DELETE /api/progress/{sid}/{cid}` |
+| `api.ts` | `api` | `getStudentProgress(studentId)` (només localStorage, sense API), `postProgress(data)` (local + dispatch event), `resetCourse(studentId, courseId)` (només localStorage) | — (només localStorage) |
 | `authService.ts` | `authService` | `login(credentials)` (només API, sense fallback local), `logout()`, `getMe()` (API amb fallback localStorage), `getCurrentUser()` | `POST /api/users/auth/login/`, `POST /api/users/auth/logout/`, `GET /api/users/me/settings/` |
-| `courseService.ts` | `courseService` | `getAllCourses()`, `getCourseBySlug(slug)`, `getCourseAvatar(slug)`, `getCourseTopics(slug)`, `getTopic(courseSlug, topicSlug)`, `getTopicProblems(courseSlug, topicSlug)`, `getProblem(...)`, `submitChallenge(...)`, `getCourseStudents(slug)`, `getFullCourseDetail(slug)` — usa 2 instàncies axios (publicApi + api amb token) | `GET /api/v1/public/courses/`, `GET /api/v1/courses/{slug}/`, `GET /api/v1/courses/{slug}/topics/`, `GET /api/v1/courses/{slug}/students/`, `POST /api/v1/courses/{slug}/topics/{t}/problems/{p}/submissions/` |
+| `courseService.ts` | `courseService` | `getAllCourses()`, `getCourseBySlug(slug)`, `getCourseTopics(slug)`, `getTopicProblems(courseSlug, topicSlug)`, `submitChallenge(courseSlug, topicSlug, problemSlug, code)`, `getFullCourseDetail(slug)` (Promise.all paral·lel) — apiClient amb timeout 10s | `GET /api/v1/public/courses/`, `GET /api/v1/courses/{slug}/`, `GET /api/v1/courses/{slug}/topics/`, `GET /api/v1/courses/{slug}/topics/{t}/problems/`, `POST /api/v1/courses/{slug}/topics/{t}/problems/{p}/submissions/` |
 | `teacherService.ts` | (BUIT) | | |
 
 ### Theme (`src/theme/`)
@@ -257,6 +259,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 
 | Fitxer | Contingut |
 |--------|-----------|
+| `useCourse.ts` | `useCourse(courseId)` amb TanStack Query; `prefetchCourse(queryClient, courseId)` per prefetching hover |
 | `useI18n.ts` | Re-exporta `{ I18nProvider, useI18n }` |
 | `useTheme.ts` | Re-exporta `{ ThemeProvider, useThemeMode }` |
 | `useTeacherData.ts` | (BUIT) |
@@ -307,6 +310,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
    - `mooc_local_students` - Estudiants creats localment
    - `mooc_deleted_ids` - IDs d'estudiants eliminats
    - `mooc_submissions_{courseId}_{lessonId}` - Submissions d'estudiants
+   - `mooc_last_session` - Última sessió activa (`{courseId, lessonId, courseTitle, lessonTitle, timestamp}`)
    - `mooc-theme-mode` - Preferència de tema clar/fosc
    - `mooc-language` - Preferència d'idioma
    - `token` - Token d'autenticació API
@@ -316,16 +320,18 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 ```
 LessonPage
   │
-  ├── handleRunTests()
-  │     ├── Compara userInput amb solution (remove spaces + includes)
-  │     ├── Si passa: confetti + +10 punts (localStorage)
-  │     └── Guarda submissions a mooc_submissions_{courseId}_{lessonId}
+  ├── handleRunTests() (async)
+  │     ├── Envia codi a API via courseService.submitChallenge()
+  │     ├── Si API retorna status === 'correct' o passed === true: confetti + punts
+  │     ├── Error: mostra missatge a consola
+  │     └── Desa submissions via API POST
   │
   ├── handleSaveProgress()
   │     ├── Desa codi a localStorage (codeStorageKey)
   │     ├── Marca lliçó completada a mooc_global_progress
+  │     ├── Desa mooc_last_session (courseId, lessonId, timestamp)
   │     ├── Suma punts a points_{userId}
-  │     └── api.postProgress() → intenta API → si falla, només local
+  │     └── api.postProgress() → només localStorage + dispatch lessonProgressUpdated
   │
   └── Dispara event 'lessonProgressUpdated' → CourseLessons i StudentDashboard el reben
 ```
@@ -382,6 +388,13 @@ Login
 - ✅ Adaptació hoverBg a StudentProfileCard, ProgressOverview, RankingCard per mode light/dark
 - ✅ `NotificationHub.tsx` amb colors adaptatius: **Dark** bg `#141414`, text/icona `white`; **Light** bg `white`, text/icona `#141414`
 - ✅ `index.css` amb scrollbar personalitzada: track `#f5f5f5` (light) / `#0a0a0a` (dark), thumb `#8400ff`
+- ✅ `@tanstack/react-query` integrat: `QueryClientProvider` a main.tsx, `useCourse()` hook, prefetching predictiu a CourseCard hover
+- ✅ `api.ts` simplificat a localStorage només (sense axios, sense peticions API)
+- ✅ `handleRunTests` async amb `submitChallenge()` via API real
+- ✅ `mooc_last_session` per recordar última lliçó activa (icona taronja a CourseExpandedContent)
+- ✅ Traduccions `dashboard.last_session` i `dashboard.continue` als 3 idiomes
+- ✅ Spinners fullscreen (`position: fixed, inset: 0, zIndex: 9999`) a CourseLessons, LessonPage, StudentDashboard
+- ✅ CourseLessons sidebar scrollbar estilitzada
 
 ### Per Implementar
 - ❌ Pàgines de teacher (Courses, Dashboard, Exercises, Students)
@@ -392,9 +405,9 @@ Login
 ### Observacions
 - `AuthContext` connectat a main.tsx, però StudentDashboard i Header encara fan servir localStorage directament (no usen `useAuth()`)
 - `authService.login()` NO té fallback local (només API, llança error si no disponible); `getMe()` sí té fallback a localStorage
-- `courseService.ts` usa 2 instàncies axios: `publicApi` (baseURL `/api/v1/public/courses/`, sense auth) i `api` (baseURL `/api/v1/courses/`, amb Token header). NO té fallback a `data/courses.ts`
-- `api.ts` té un sistema híbrid (localStorage + API) per al progrés, amb BASE_URL apuntant a `https://algorien.com/api`
-- `main.tsx` ara inclou tots els providers: BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider
+- `courseService.ts` usa una instància axios (`apiClient`) amb baseURL `/api/v1`, timeout 10s, i Token header automàtic. NO té fallback a `data/courses.ts`
+- `api.ts` simplificat a localStorage només: `getStudentProgress`, `postProgress`, `resetCourse` ja no fan peticions HTTP
+- `main.tsx` ara inclou tots els providers: QueryClientProvider + BrowserRouter + StyledEngineProvider + ThemeProvider + I18nProvider + AuthProvider + NotificationProvider
 - `src/i18n.ts` (arrel) és importat per `I18nContext.tsx` per inicialitzar i18next. Existeix un duplicat a `src/i18n/index.ts` que no s'importa des de cap lloc (deixat de la migració)
 - `src/App.css` existeix però no és importat des de cap fitxer (estils legacy no utilitzats)
 - Tots els components de StudentDashboard estan desacoblats a `features/student/`
@@ -420,33 +433,27 @@ Login
 
 | Mètode | Endpoint | Ús | Servei |
 |--------|----------|-----|--------|
-| GET | `/api/progress/{studentId}` | Obtenir progrés de l'estudiant | `api.ts` |
-| POST | `/api/progress` | Guardar progrés d'una lliçó | `api.ts` |
-| DELETE | `/api/progress/{studentId}/{courseId}` | Reiniciar progrés d'un curs | `api.ts` |
 | POST | `/api/users/auth/login/` | Login usuari | `authService.ts` |
 | POST | `/api/users/auth/logout/` | Logout usuari | `authService.ts` |
 | GET | `/api/users/me/settings/` | Obtenir dades de l'usuari | `authService.ts` |
 | GET | `/api/v1/public/courses/` | Llistat públic de cursos | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/` | Detalls d'un curs | `courseService.ts` |
-| GET | `/api/v1/courses/{slug}/avatar/` | Avatar d'un curs | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/topics/` | Lliçons d'un curs | `courseService.ts` |
-| GET | `/api/v1/courses/{slug}/topics/{topic}/` | Detall d'un tema | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/topics/{topic}/problems/` | Problemes d'un tema | `courseService.ts` |
-| GET | `/api/v1/courses/{slug}/topics/{topic}/problems/{problem}/` | Detall d'un problema | `courseService.ts` |
 | POST | `/api/v1/courses/{slug}/topics/{topic}/problems/{problem}/submissions/` | Enviar solució | `courseService.ts` |
-| GET | `/api/v1/courses/{slug}/students/` | Estudiants d'un curs | `courseService.ts` |
 
 ### APIs de Tercers / Llibreries
 
 | API / Llibreria | Ús |
 |----------------|-----|
+| **@tanstack/react-query** | Cache de dades de curs i prefetching (useQuery, QueryClientProvider) |
 | **react-router-dom** | Navegació SPA (Links, Routes, useNavigate, useParams, useLocation) |
 | **i18next + react-i18next** | Traduccions (useTranslation, i18n.changeLanguage) |
 | **framer-motion + @react-spring/web** | Animacions (motion.div, AnimatePresence, whileInView, whileHover, spring) |
 | **axios** | Peticions HTTP als endpoints del backend |
 | **canvas-confetti** | Animació de confeti en completar lliçons |
 | **MUI (Material UI v9)** | Sistema de components (ThemeProvider, CssBaseline, Box, Card, Button, Accordion, etc.) |
-| **localStorage API** | Persistència de: progrés, codi, punts, usuaris, tema, idioma, submissions, IDs eliminats |
+| **localStorage API** | Persistència de: progrés, codi, punts, usuaris, tema, idioma, submissions, IDs eliminats, última sessió |
 | **Canvas API** | Fons interactiu de partícules (ParticlesBackground) |
 | **window.dispatchEvent** | Comunicació entre components (auth-state-change, lessonProgressUpdated, studentsUpdated) |
 | **NotificationContext** | Toast notifications (LessonPage, StudentDashboard) |

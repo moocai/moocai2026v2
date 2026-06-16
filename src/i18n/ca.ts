@@ -8,7 +8,9 @@ export default {
     access: "Accedir",
     enroll_login_required: "Has d'iniciar sessió per inscriure't al curs"
   },
-  dashboard: {
+    dashboard: {
+    last_session: "Última sessió",
+    continue: "Continuar",
     title: "Panell de l'Alumne",
     subtitle: "Gestiona el teu aprenentatge i consulta el teu progrés",
     my_progress: "El meu Progrés",

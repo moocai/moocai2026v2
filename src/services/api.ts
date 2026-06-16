@@ -1,62 +1,28 @@
-import axios from 'axios';
+const getProgress = () =>
+  JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
 
-const BASE_URL = 'https://algorien.com/api';
-
-// Funció auxiliar per gestionar el localStorage de forma hibrida
-const saveToLocal = (courseId: string, lessonId: string) => {
-  const local = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
-  local[`${courseId}_${lessonId}`] = true;
-  localStorage.setItem('mooc_global_progress', JSON.stringify(local));
-};
+const setProgress = (data: Record<string, boolean>) =>
+  localStorage.setItem('mooc_global_progress', JSON.stringify(data));
 
 export const api = {
-  // Obté el progrés fusionant Local + API
-  getStudentProgress: async (studentId: string) => {
-    const localData = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
-    
-    try {
-      const response = await axios.get(`${BASE_URL}/progress/${studentId}`);
-      const apiData = response.data || [];
-      
-      // Fusionem: El que ve de l'API té preferència
-      const merged = { ...localData };
-      apiData.forEach((p: any) => {
-        merged[`${p.courseId}_${p.lessonId}`] = true;
-      });
-      
-      return merged;
-    } catch (err) {
-      console.warn("API Offline: Usant només dades locals.");
-      return localData;
-    }
+  getStudentProgress: async (_studentId: string) => {
+    return getProgress();
   },
 
-  // Guarda en ambdós llocs
   postProgress: async (data: { studentId: string; courseId: string; lessonId: string; status: boolean }) => {
-    // 1. Guardem en local per a proves immediates
-    saveToLocal(data.courseId, data.lessonId);
-
-    // 2. Intentem enviar a la API
-    try {
-      return await axios.post(`${BASE_URL}/progress`, data);
-    } catch (err) {
-      console.error("No s'ha pogut sincronitzar amb el servidor, però s'ha guardat en local.");
-      return { status: 200, data: 'saved_locally' };
-    }
+    const local = getProgress();
+    local[`${data.courseId}_${data.lessonId}`] = data.status;
+    setProgress(local);
+    window.dispatchEvent(new Event('lessonProgressUpdated'));
+    return { status: 200 };
   },
 
-  resetCourse: async (studentId: string, courseId: string) => {
-    // Netegem local
-    const local = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
+  resetCourse: async (_studentId: string, courseId: string) => {
+    const local = getProgress();
     Object.keys(local).forEach(key => {
       if (key.startsWith(`${courseId}_`)) delete local[key];
     });
-    localStorage.setItem('mooc_global_progress', JSON.stringify(local));
-
-    try {
-      return await axios.delete(`${BASE_URL}/progress/${studentId}/${courseId}`);
-    } catch (err) {
-      return { status: 200 };
-    }
+    setProgress(local);
+    return { status: 200 };
   }
 };

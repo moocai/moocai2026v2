@@ -8,7 +8,9 @@ export default {
     access: "Acceder",
     enroll_login_required: "Debes iniciar sesión para inscribirte al curso"
   },
-  dashboard: {
+    dashboard: {
+    last_session: "Última sesión",
+    continue: "Continuar",
     title: "Panel del Alumno",
     subtitle: "Gestiona tu aprendizaje y consulta tu progreso",
     my_progress: "Mi Progreso",
