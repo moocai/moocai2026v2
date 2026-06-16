@@ -232,7 +232,7 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 |--------|-----------|---------------|
 | `Home.tsx` | (default) | Carrega cursos via `courseService.getAllCourses()` amb loading/error, 6 feature cards animades (containerVariants + cardVariants amb stagger i direccional), visibility change listener |
 | `courses/CourseLessons.tsx` | (default) | Layout 3 columnes: syllabus accordion (motion.div amb slide-in seqüencial) + contingut (breadcrumb, course info, subTopics amb code examples) + "On this page" anchor links. Drawer mòbil per syllabus |
-| `courses/LessonPage.tsx` | (default) | Editor codi interactiu. 4 modes (normal/drill/assist/hackathon), tests (cleanUser.includes(cleanSol)), confetti, submissions, localStorage progress. Desktop: 3 columnes (enunciat, editor, consola). Mobile: stack vertical amb flex column wrapper. Python: inline fail console panel a sota de l'editor (mobile + desktop), result modal només en passar (mostra "ALTRES ESTUDIANTS" + "Tornar"). Notificacions toast via `NotificationContext` en desar progrés |
+| `courses/LessonPage.tsx` | (default) | Editor codi interactiu. 4 modes (normal/drill/assist/hackathon), tests (cleanUser.includes(cleanSol)), confetti, submissions, localStorage progress. Desktop: 3 columnes (enunciat, editor, consola). Mobile: stack vertical amb flex column wrapper. Python: inline fail console panel a sota de l'editor (mobile + desktop), result modal només en passar (mostra "ALTRES ESTUDIANTS" + "Tornar"). Notificacions toast via `NotificationContext` en desar progrés. **Consola**: finestra popup reutilitzable amb `consoleWindowRef` (useRef) — si ja existeix, fa focus() en lloc de crear-ne una de nova. `useEffect` sincronitza `consoleOutput` en temps real. `handleRunTests` obre automàticament la consola en executar. |
 | `courses/${courseId}/${lesson.id}/LessonTopic.tsx` | (default) | Sidebar llista lliçons (filtrada a l'actual), explicació teòrica, challenge box, exercise instructions, navegació prev/next/go-to-activity |
 | `dashboards/StudentDashboard.tsx` | (default) | Login/create-user flow, profile card, progress overview, course grid expansible, ranking per tabs. Integra dades locals + API progress sync. Notificacions toast via `NotificationContext` (login, logout, create, delete, error PIN, reset curs). Dispara `studentsUpdated` event en crear/eliminar usuaris. Passa `students` com a prop a `Login` |
 | `teacher/Courses.tsx` | (BUIT) | |
@@ -321,10 +321,12 @@ TOTS ELS FITXERS estan BUITS (pendents d'implementar):
 LessonPage
   │
   ├── handleRunTests() (async)
+  │     ├── Obre/focusa finestra consola automàticament (handleOpenConsole)
   │     ├── Envia codi a API via courseService.submitChallenge()
   │     ├── Si API retorna status === 'correct' o passed === true: confetti + punts
   │     ├── Error: mostra missatge a consola
-  │     └── Desa submissions via API POST
+  │     ├── Desa submissions via API POST
+  │     └── useEffect sincronitza consoleOutput a la finestra popup en temps real
   │
   ├── handleSaveProgress()
   │     ├── Desa codi a localStorage (codeStorageKey)

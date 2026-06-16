@@ -144,6 +144,13 @@ Migració completa del projecte a patrons React 19. S'han eliminat anti-patrons 
 - **`dashboard.last_session`**: "Última sessió" (CA/ES) / "Last session" (EN)
 - **`dashboard.continue`**: "Continuar" (CA/ES) / "Continue" (EN)
 
+### 28. `LessonPage.tsx` — Finestra consola reutilitzable + temps real (16 juny)
+- **`consoleWindowRef`**: Nou `useRef<Window | null>` per emmagatzemar la referència a la finestra popup de la consola
+- **`handleOpenConsole`**: Si la finestra ja existeix i no està tancada, fa `focus()` en lloc d'obrir-ne una de nova. Si està tancada, en crea una i la guarda al ref
+- **`useEffect` sincronització**: Cada cop que `consoleOutput` canvia, reescriu automàticament el contingut de la finestra popup (temps real). Depèn de `[consoleOutput, courseId]`
+- **`handleRunTests`**: Ara crida `handleOpenConsole()` automàticament al principi — l'usuari no ha d'obrir la consola manualment per veure el resultat
+- **Motiu**: UX millorada — evitar múltiples finestres emergents i mostrar feedback en temps real sense clics addicionals
+
 ---
 
 ## Patrons no detectats (ja nets)

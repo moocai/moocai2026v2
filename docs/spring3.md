@@ -1,5 +1,5 @@
 # Proposta Sprint 3
-**Última actualització: 16 de juny de 2026**
+**Última actualització: 16 de juny de 2026** (tarda)
 
 - ✅ Enunciat exercici en el text itinerari abans d'apretar Començar exercici (com React.dev)
 - ✅ Table of contentes amagada per definició → més net
@@ -15,3 +15,4 @@
   - Millora: `mooc_last_session` a localStorage guarda courseId/lessonId per indicar "Última sessió" amb icona taronja a CourseExpandedContent
 - ✅ Tornar de exercici completat amb exit a itinerari passar a següent secció (convertir botó existent 'següent' al botó figma Miquel)
 - ⏺ Miquel s'ofereix a programar / investigar render React o Sandbox
+- ✅ Finestra consola reutilitzable: `consoleWindowRef` + `useEffect` sincronització temps real + obertura automàtica en executar

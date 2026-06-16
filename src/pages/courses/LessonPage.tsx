@@ -35,6 +35,7 @@ export default function LessonPage() {
   const [fadeKey] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
   const [backHidden, setBackHidden] = useState(false);
+  const consoleWindowRef = useRef<Window | null>(null);
 
   const lang = (i18n.language?.split('-')[0]) as 'ca' | 'es' | 'en';
   const getText = (field: any): string => {
@@ -78,6 +79,17 @@ export default function LessonPage() {
     return () => clearInterval(id);
   }, [isDirty, currentUser, codeStorageKey]);
 
+  // Sync console output to popup window
+  useEffect(() => {
+    const win = consoleWindowRef.current;
+    if (!win || win.closed) return;
+    const lines = consoleOutput.length > 0 ? consoleOutput : ["// Esperant execució..."];
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Consola - ${courseId}</title><style>body{margin:0;font-family:'Fira Code',Consolas,monospace;background:#000;color:#b5e853;padding:20px;font-size:14px;line-height:1.6;white-space:pre-wrap}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}</style></head><body>${lines.map(l => l.replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('<br>')}</body></html>`;
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }, [consoleOutput, courseId]);
+
   const handleSaveProgress = async (isAutoSaveOnPass = false) => {
     if (!currentUser || !courseId || !lessonId) return;
     setIsSaving(true);
@@ -118,6 +130,7 @@ export default function LessonPage() {
   const handleRunTests = async () => {
     setConsoleOutput(["[SISTEMA]: Executant..."]);
     setStatus('idle');
+    handleOpenConsole();
     try {
       const topic = course?.content?.find((t: any) =>
         t.subTopics?.some((s: any) => s.problemSlug === lessonId)
@@ -150,11 +163,24 @@ export default function LessonPage() {
   };
 
   const handleOpenConsole = () => {
-    const newWindow = window.open('', '_blank', 'width=800,height=600');
+    if (consoleWindowRef.current && !consoleWindowRef.current.closed) {
+      consoleWindowRef.current.focus();
+      return;
+    }
+    const newWindow = window.open('', 'console-popup', 'width=800,height=600');
     if (!newWindow) { setConsoleOutput(p => [...p, "⚠️ Permet les finestres emergents per obrir la consola"]); return; }
+    consoleWindowRef.current = newWindow;
     const lines = consoleOutput.length > 0 ? consoleOutput : ["// Esperant execució..."];
     newWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Consola - ${courseId}</title><style>body{margin:0;font-family:'Fira Code',Consolas,monospace;background:#000;color:#b5e853;padding:20px;font-size:14px;line-height:1.6;white-space:pre-wrap}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}</style></head><body>${lines.map(l => l.replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('<br>')}</body></html>`);
     newWindow.document.close();
+    const checkClosed = () => {
+      if (newWindow.closed) {
+        if (consoleWindowRef.current === newWindow) consoleWindowRef.current = null;
+        return;
+      }
+      setTimeout(checkClosed, 1000);
+    };
+    checkClosed();
   };
 
   if (loading) return <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', zIndex: 9999 }}><CircularProgress color="secondary" /></Box>;
