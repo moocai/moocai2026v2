@@ -3,7 +3,7 @@ import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material';
 import { GraduationCap } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppBar, Toolbar, Box, Typography, Button, IconButton, Stack, useTheme, Divider} from '@mui/material';
+import { AppBar, Toolbar, Box, Typography, Button, IconButton, Stack, useTheme, Divider, alpha} from '@mui/material';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './ThemeToggleButton';
@@ -103,7 +103,7 @@ export function Header() {
 
             {isLoggedIn ? (
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                <Button component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap size={18} />} sx={{ fontWeight: 800, color: 'text.primary', textTransform: 'none', px: 2, height: 40, bgcolor: 'action.hover', borderRadius: '12px' }}>
+                <Button component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap size={18} />} sx={{ fontWeight: 800, color: 'text.primary', textTransform: 'none', px: 2, height: 40, bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.primary.main, 0.15) : 'action.hover', borderRadius: '12px' }}>
                   {t('dashboard.my_progress')}
                 </Button>
               </Stack>
@@ -143,10 +143,10 @@ export function Header() {
               <Stack spacing={2} sx={{ width: '100%' }}>
                 {isLoggedIn ? (
                   <>
-                    <Button fullWidth component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap />} onClick={() => setMobileOpen(false)} sx={{ fontWeight: 800, borderRadius: '12px', py: 2, color: 'text.primary', bgcolor: 'action.hover', fontSize: '1.1rem' }}>
+                    <Button fullWidth component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap />} onClick={() => setMobileOpen(false)} sx={{ fontWeight: 800, borderRadius: '12px', py: 2, color: 'text.primary', bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.primary.main, 0.08) : 'action.hover', fontSize: '1.1rem' }}>
                       {t('dashboard.my_progress')}
                     </Button>
-                    <Button fullWidth color="error" onClick={handleLogout} sx={{ fontWeight: 800, py: 1.5 }}>{t('auth.logout')}</Button>
+                    <Button fullWidth color="error" onClick={handleLogout} sx={{ fontWeight: 900, py: 1.5 }}>{t('auth.logout')}</Button>
                   </>
                 ) : (<Button fullWidth onClick={() => { navigate('/dashboards/student'); setMobileOpen(false); }} sx={{ ...commonButtonStyle, py: 2, fontSize: '1.1rem' }}>{t('auth.access').toUpperCase()}</Button>)}
               </Stack>

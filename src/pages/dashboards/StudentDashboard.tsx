@@ -1,7 +1,7 @@
 import {useState, useEffect, useMemo, useCallback, type FormEvent, type MouseEvent} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {Box, Container, Typography, Stack, Alert, CircularProgress} from '@mui/material';
+import {Box, Container, Typography, Stack, CircularProgress} from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {api} from '../../services/api';
 import {useTranslation} from 'react-i18next';
@@ -92,7 +92,6 @@ export default function StudentDashboard() {
           setAllCourses(fullCourses);
         } catch (err) {
           console.error("Error carregant cursos:", err);
-          setGlobalError('Error loading courses');
         }
         const localStudents = JSON.parse(localStorage.getItem('mooc_local_students') || '[]');
         const deletedIds = JSON.parse(localStorage.getItem('mooc_deleted_ids') || '[]');
@@ -223,10 +222,10 @@ export default function StudentDashboard() {
   );
 
   return (
-       <Box sx={{ bgcolor: 'background.default', color: 'text.primary', width: '100%', maxWidth: '100vw', minHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-       <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, px: { xs: 3, sm: 1.5, md: 8, lg: 8 }, display: 'flex', flexDirection: 'column' }}>
-         <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: { xs: 'visible', md: 'hidden' } }}>
-          {globalError && <Alert severity="error" sx={{ mb: 3, borderRadius: '1rem' }}>{globalError}</Alert>}
+       <Box sx={{ bgcolor: 'background.default', color: 'text.primary', width: '100%', maxWidth: '100vw', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+       <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, px: { xs: 3, sm: 1.5, md: 8, lg: 8 }, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+         <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
           
           {!selectedStudent ? (
                 <Login
