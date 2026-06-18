@@ -22,7 +22,6 @@ export default function StudentDashboard() {
   const { addNotification } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [globalError, setGlobalError] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -183,7 +182,6 @@ export default function StudentDashboard() {
       addNotification(t('notifications.course_reset'), 'success');
     } catch (err) {
       addNotification(t('notifications.course_reset_error'), 'error');
-      setGlobalError("Error reset.");
     } finally { setActionLoading(false); }
   };
 
