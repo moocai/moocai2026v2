@@ -16,7 +16,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Token ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -58,20 +58,21 @@ export const courseService = {
     return Array.isArray(data) ? data : (data.results || []);
   },
 
-  async submitChallenge(courseSlug: string, topicSlug: string, problemSlug: string, code: string): Promise<any> {
+  async submitChallenge(courseSlug: string, challengeSlug: string, code: string): Promise<any> {
+    const file = new File([code], 'submission.csv', { type: 'text/csv' });
+    const formData = new FormData();
+    formData.append('file', file);
+
     const { data } = await apiClient.post(
-      `/courses/${courseSlug}/topics/${topicSlug}/problems/${problemSlug}/submissions/`, 
-      { code }
+      `/courses/${courseSlug}/challenges/${challengeSlug}/submissions/`,
+      formData
     );
     return data;
   },
 
+  /** @deprecated Use submitChallenge instead */
   async submitSubmission(courseSlug: string, challengeSlug: string, code: string): Promise<any> {
-    const { data } = await apiClient.post(
-      `/courses/${courseSlug}/challenges/${challengeSlug}/submissions/`,
-      { code }
-    );
-    return data;
+    return this.submitChallenge(courseSlug, challengeSlug, code);
   },
 
   async getFullCourseDetail(slug: string): Promise<any> {

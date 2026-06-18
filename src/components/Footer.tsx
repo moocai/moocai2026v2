@@ -36,7 +36,7 @@ export function Footer() {
                   </Box>
                 </Box>
               </RouterLink>
-              <Typography variant="body1" component="p" sx={{ color: 'text.primary', lineHeight: 1.6, maxWidth: { xs: '300px', md: '380px' }, mx: { xs: 'auto', md: 'unset' }, fontSize: { xs: '0.9rem', md: '1.1rem' } }}>{t('footer.brand_tagline')}</Typography>
+              <Typography variant="body1" component="p" sx={{ color: 'text.primary', lineHeight: 1.6, maxWidth: {xs: '300px', md: '380px' }, mx: { xs: 'auto', md: 'unset' }, fontSize: { xs: '0.9rem', md: '1.1rem' } }}>{t('footer.brand_tagline')}</Typography>
             </Grid>
 
             {/* Links Explora */}
@@ -70,7 +70,7 @@ export function Footer() {
           </Grid>
 
           {/* Bottom Bar */}
-          <Box sx={{ mt: { xs: 6, md: 4 }, pt: 4,borderTop: '1px solid', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'center', alignItems: 'center', gap: { xs: 2, md: 4 }}}>
+          <Box sx={{ mt: { xs: 6, md: 4 }, pt: 4,borderTop: '3px solid #8400ff', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'center', alignItems: 'center', gap: { xs: 2, md: 4 }}}>
             <Typography sx={{ color: 'text.primary', fontSize: { xs: '0.7rem', md: '0.8rem' }, fontWeight: 600 }}>
               © {currentYear} {t('footer.copyright')} ©
             </Typography>

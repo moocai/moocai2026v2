@@ -262,7 +262,7 @@ TOTS ELS FITXERS estan BUITS: `ChatWidget.tsx`, `CourseForm.tsx`, `ExerciseEdito
 - **Editor de codi interactiu** amb:
   - `textarea` amb estil monospace (Fira Code)
   - Auto-save cada 10s si l'usuari està escrivint
-  - Botó "Run" que envia codi a la API via `courseService.submitSubmission()`
+  - Botó "Run" que envia codi a la API via `courseService.submitChallenge()` (com a fitxer CSV `multipart/form-data`)
   - Finestra de consola popup reutilitzable (`consoleWindowRef`) per Python
   - Resultat modal en passar (mostra "ALTRES ESTUDIANTS")
   - Fail: inline console panel a sota de l'editor
@@ -315,6 +315,7 @@ TOTS ELS FITXERS estan BUITS: `ChatWidget.tsx`, `CourseForm.tsx`, `ExerciseEdito
 Base URL: `VITE_API_URL` env var o `https://algorien.com/api/v1`
 - Interceptor: afegeix `Authorization: Token {token}` automàtic
 - Timeout: 10s
+- `submitChallenge` envia el codi com a `File` (`submission.csv`) dins un `FormData` amb clau `file` (`Content-Type: multipart/form-data` gestionat automàticament per axios)
 
 | Mètode | Endpoint |
 |--------|----------|
@@ -322,8 +323,8 @@ Base URL: `VITE_API_URL` env var o `https://algorien.com/api/v1`
 | `getCourseBySlug(slug)` | GET `/courses/{slug}/` |
 | `getCourseTopics(slug)` | GET `/courses/{slug}/topics/` |
 | `getTopicProblems(courseSlug, topicSlug)` | GET `.../{courseSlug}/topics/{topicSlug}/problems/` |
-| `submitChallenge(courseSlug, topicSlug, problemSlug, code)` | POST `.../{problemSlug}/submissions/` |
-| `submitSubmission(courseSlug, challengeSlug, code)` | POST `.../challenges/{challengeSlug}/submissions/` |
+| `submitChallenge(courseSlug, challengeSlug, code)` | POST `.../challenges/{challengeSlug}/submissions/` (envia `code` com a `File` via `FormData` amb clau `file`) |
+| `submitSubmission(courseSlug, challengeSlug, code)` | **Deprecated** — delega a `submitChallenge` |
 | `getFullCourseDetail(slug)` | Agrega course + topics + problems en una sola crida |
 
 ---
@@ -389,7 +390,7 @@ Base URL: `VITE_API_URL` env var o `https://algorien.com/api/v1`
 ```
 handleRunTests()
   ├── Obre/focusa consola popup (isPythonCourse)
-  ├── Envia codi a API via courseService.submitSubmission()
+  ├── Envia codi a API via courseService.submitChallenge() (com a fitxer CSV dins FormData)
   ├── Si result.status === 'correct' || result.passed === true:
   │     ├── confetti()
   │     ├── handleSaveProgress(true) → +10 punts
@@ -520,8 +521,8 @@ npm run preview      # Previsualitzar build
 - `Login.tsx` rep `students` com a prop (no fusiona internament)
 - `StudentDashboard` dispara `studentsUpdated` en crear/eliminar usuaris; `height: 100%` dins del flex container, sense scroll
 - `LessonTopic.tsx` té `localCourses` no definit (potencial bug)
-- `LessonPage.tsx` usa `submitSubmission()` (endpoint `/challenges/`) en lloc de `submitChallenge()`
-- `courseService.ts` exposa tant `submitChallenge()` com `submitSubmission()` (endpoints diferents)
+- `LessonPage.tsx` crida `courseService.submitChallenge()`, que envia el codi com a `File` (`submission.csv`) dins un `FormData` (`multipart/form-data`)
+- `submitSubmission` queda com a wrapper **deprecated** cap a `submitChallenge`
 
 ---
 
@@ -538,8 +539,7 @@ npm run preview      # Previsualitzar build
 | GET | `/api/v1/courses/{slug}/` | Detalls d'un curs | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/topics/` | Lliçons d'un curs | `courseService.ts` |
 | GET | `/api/v1/courses/{slug}/topics/{topic}/problems/` | Problemes d'un tema | `courseService.ts` |
-| POST | `/api/v1/courses/{slug}/topics/{topic}/problems/{problem}/submissions/` | Enviar solució problema | `courseService.ts` |
-| POST | `/api/v1/courses/{slug}/challenges/{challenge}/submissions/` | Enviar solució challenge | `courseService.ts` |
+| POST | `/api/v1/courses/{slug}/challenges/{challenge}/submissions/` | Enviar solució challenge (com a `File` dins `FormData`) | `courseService.ts` |
 
 ### APIs de Tercers / Llibreries
 

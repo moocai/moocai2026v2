@@ -139,7 +139,7 @@ export default function LessonPage() {
 
       setConsoleOutput(p => [...p, "📤 Enviat al servidor..."]);
 
-      const result = await courseService.submitSubmission(
+      const result = await courseService.submitChallenge(
         courseId!,
         lessonId!,
         userInput
