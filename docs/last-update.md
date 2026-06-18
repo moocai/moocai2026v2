@@ -60,8 +60,9 @@
 - Eliminat `requestAnimationFrame` que envoltava confetti + save.
 
 ## src/pages/dashboards/StudentDashboard.tsx
-- Eliminada importació de `localExercises` (ja no existeix).
-- `getCoursePoints` ja no filtra per exercicis locals — compta qualsevol lesson amb `dbProgress`.
+- Càrrega de cursos canviada: ara usa `getFullCourseDetail()` per tots els cursos (abans només 'python-public-test' amb lògica manual).
+- Càrrega d'usuaris locals separada en bloc try/catch independent — els usuaris locals sempre es carreguen encara que l'API de cursos falli.
+- Eliminat `localExercises` de `getCoursePoints` — compta qualsevol lesson amb `dbProgress`.
 
 ## src/services/courseService.ts
 - Nou mètode `submitSubmission(courseSlug, challengeSlug, code)` que fa POST a `/courses/{courseSlug}/challenges/{challengeSlug}/submissions/`.
