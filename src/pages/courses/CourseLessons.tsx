@@ -4,6 +4,8 @@ import {
   Box, Typography, Accordion, AccordionSummary, AccordionDetails,
   Button, CircularProgress, Stack, useTheme, alpha, Drawer
 } from '@mui/material';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -67,13 +69,7 @@ export default function CourseLessons() {
   );
 
   if (!course) return <Typography>{t('lesson.course_not_found')}</Typography>;
-  if (course.disabled) return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'red', gap: 2 }}>
-      <Typography variant="h4" sx={{ fontWeight: 900, color: 'red', bgcolor: 'error.main', px: 4, py: 1.5, borderRadius: 2, textAlign: 'center' }}>
-        PROPERAMENT
-      </Typography>
-    </Box>
-  );
+
 
   return (
     <Box sx={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, bgcolor: 'background.default', overflow: 'hidden' }}>
@@ -116,13 +112,13 @@ export default function CourseLessons() {
               borderColor: 'divider',
               bgcolor: 'transparent',
             }}>
-              <AccordionSummary expandIcon={<ChevronDown size={30} />} sx={{
+              <AccordionSummary expandIcon={<ChevronDown size={30} />} onClick={() => setActiveLessonId(lesson.id)} sx={{
                 px: 2, minHeight: 48,
                 '& .MuiAccordionSummary-content': { my: 0 },
                 '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.5) }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.3, flex: 1, letterSpacing: '0.15em'}}>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.3, flex: 1, letterSpacing: '0.15em', color: lesson.id === activeId ? '#8400ff' : undefined}}>
                     {getText(lesson.title)}
                   </Typography>
                   {progress[`${courseId}_${lesson.id}`] && (
@@ -140,7 +136,7 @@ export default function CourseLessons() {
                         const el = document.getElementById(`sub-${lesson.id}-${i}`);
                         if (el) el.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      disableRipple sx={{justifyContent: 'flEx-start',fontSize: '1rem', color: 'text.secondary',textTransform: 'none', minWidth: 0, borderRadius: 1, '&:hover': { color: '#149eca', bgcolor: alpha('#149eca', 0.06) }}}>
+                      disableRipple sx={{justifyContent: 'flEx-start',fontSize: '1rem', color: lesson.id === activeId ? '#8400ff' : 'text.secondary',textTransform: 'none', minWidth: 0, borderRadius: 1, '&:hover': { color: '#8400ff', bgcolor: alpha('#8400ff', 0.06) }}}>
                       {getText(sub.subtitle)}
                     </Button>
                   ))}
@@ -199,7 +195,7 @@ export default function CourseLessons() {
                 borderColor: 'divider',
                 bgcolor: 'transparent',
               }}>
-                <AccordionSummary expandIcon={<ChevronDown size={30} />} sx={{
+                <AccordionSummary expandIcon={<ChevronDown size={30} />} onClick={() => setActiveLessonId(lesson.id)} sx={{
                   px: 2, minHeight: 48,
                   '& .MuiAccordionSummary-content': { my: 0 },
                   '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.5) }
@@ -208,7 +204,7 @@ export default function CourseLessons() {
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}>
                       {String(index + 1).padStart(2, '0')}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.3, flex: 1 }}>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.3, flex: 1, color: lesson.id === activeId ? '#8400ff' : undefined }}>
                       {getText(lesson.title)}
                     </Typography>
                     {progress[`${courseId}_${lesson.id}`] && (
@@ -227,7 +223,7 @@ export default function CourseLessons() {
                           const el = document.getElementById(`sub-${lesson.id}-${i}`);
                           if (el) el.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        disableRipple sx={{ justifyContent: 'flex-start', fontSize: '1rem', color: 'text.secondary', textTransform: 'none', minWidth: 0, borderRadius: 1, '&:hover': { color: '#149eca', bgcolor: alpha('#149eca', 0.06) } }}>
+                        disableRipple sx={{ justifyContent: 'flex-start', fontSize: '1rem', color: lesson.id === activeId ? '#8400ff' : 'text.secondary', textTransform: 'none', minWidth: 0, borderRadius: 1, '&:hover': { color: '#8400ff', bgcolor: alpha('#8400ff', 0.06) } }}>
                         {getText(sub.subtitle)}
                       </Button>
                     ))}
@@ -299,9 +295,9 @@ export default function CourseLessons() {
                       <Typography variant="h5" sx={{ fontWeight: 700, fontSize: '1.15rem', mb: 1.5, color: '#149eca' }}>
                         {getText(sub.subtitle)}
                       </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: '1rem', lineHeight: 1.8, mb: 2.5, whiteSpace: 'pre-line'}}>
-                        {getText(sub.text)}
-                      </Typography>
+                      <Box sx={{ '& p': { color: 'text.secondary', fontSize: '1rem', lineHeight: 1.8, mb: 2.5 }, '& code': { bgcolor: alpha(theme.palette.primary.main, 0.08), px: 0.8, py: 0.2, borderRadius: 1, fontFamily: "'Fira Code', 'Consolas', monospace", fontSize: '0.85rem' }, '& pre': { bgcolor: '#1a1d23', p: 2.5, borderRadius: 2, overflow: 'auto', '& code': { bgcolor: 'transparent', px: 0, py: 0, fontSize: '0.85rem', color: '#7ee787' } }, '& ul, & ol': { color: 'text.secondary', lineHeight: 1.8, mb: 2.5 }, '& li': { mb: 0.5 }, '& h1, & h2, & h3, & h4, & h5, & h6': { color: 'text.primary', fontWeight: 700, mb: 1.5 }, '& table': { width: '100%', borderCollapse: 'collapse', mb: 2.5 }, '& th, & td': { border: '1px solid', borderColor: 'divider', px: 2, py: 1, textAlign: 'left', color: 'text.secondary' }, '& th': { bgcolor: alpha(theme.palette.primary.main, 0.05), fontWeight: 700, color: 'text.primary' }, '& a': { color: 'primary.main' }, '& blockquote': { borderLeft: '4px solid', borderColor: 'primary.main', pl: 2, py: 0.5, mb: 2.5, color: 'text.secondary', fontStyle: 'italic' }, '& img': { maxWidth: '100%', borderRadius: 2 } }}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{getText(sub.text)}</ReactMarkdown>
+                      </Box>
                       {sub.exampleCode && (
                         <Box sx={{ bgcolor: '#1a1d23', border: '1px solid', borderColor: '#30363d', borderRadius: 2, overflow: 'hidden' }}>
                           <Box sx={{ px: 2.5, py: 1.25, bgcolor: '#23272f', borderBottom: '1px solid #30363d', display: 'flex', alignItems: 'center', gap: 1.5 }}>

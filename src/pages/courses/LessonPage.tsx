@@ -137,22 +137,23 @@ export default function LessonPage() {
       );
       if (!topic) throw new Error('Topic not found');
 
-      const result = await courseService.submitChallenge(
+      setConsoleOutput(p => [...p, "📤 Enviat al servidor..."]);
+
+      const result = await courseService.submitSubmission(
         courseId!,
-        topic.id,
         lessonId!,
         userInput
       );
+
+      setConsoleOutput(p => [...p, "✅ Resposta rebuda del servidor"]);
 
       const passed = result?.status === 'correct' || result?.passed === true;
       setConsoleOutput(p => [...p, result?.feedback || (passed ? "✅ COMPLETAT!" : "❌ Revisa el codi")]);
 
       if (passed) {
         setStatus('pass');
-        requestAnimationFrame(() => {
-          confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
-          handleSaveProgress(true);
-        });
+        await handleSaveProgress(true);
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
       } else {
         setStatus('fail');
       }

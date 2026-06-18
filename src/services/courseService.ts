@@ -66,6 +66,14 @@ export const courseService = {
     return data;
   },
 
+  async submitSubmission(courseSlug: string, challengeSlug: string, code: string): Promise<any> {
+    const { data } = await apiClient.post(
+      `/courses/${courseSlug}/challenges/${challengeSlug}/submissions/`,
+      { code }
+    );
+    return data;
+  },
+
   async getFullCourseDetail(slug: string): Promise<any> {
     try {
       const [courseData, topics] = await Promise.all([

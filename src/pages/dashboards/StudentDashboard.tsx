@@ -15,7 +15,6 @@ import {RankingCard} from '../../features/student/RankingCard';
 import {ScrollIndicator} from '../../features/student/ScrollIndicator';
 import { courseService } from '../../services/courseService';
 import { students as baseStudents } from '../../data/students';
-import { exercises as localExercises } from '../../data/exercises';
 
 export default function StudentDashboard() {
   const { t, i18n } = useTranslation();
@@ -200,10 +199,7 @@ export default function StudentDashboard() {
 
   const getCoursePoints = useCallback((course: Course, _studentId: string): number => {
     const topics = getCourseTopics(course);
-    const done = topics.reduce((acc, topic) => acc + (topic.lessons?.filter(l => {
-      const hasExercise = localExercises.some(e => e.id === l.id && e.courseId === course.id);
-      return hasExercise && dbProgress[`${course.id}_${l.id}`];
-    }).length || 0), 0) || 0;
+    const done = topics.reduce((acc, topic) => acc + (topic.lessons?.filter(l => dbProgress[`${course.id}_${l.id}`]).length || 0), 0) || 0;
     return done * 10;
   }, [dbProgress, getCourseTopics]);
 

@@ -7,10 +7,11 @@ import { AppBar, Toolbar, Box, Typography, Button, IconButton, Stack, useTheme, 
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './ThemeToggleButton';
+import { LanguageSwitcher } from './LanguageSwitcher';
 const logo = '/img/logo.webp';
 
 export function Header() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,7 +30,7 @@ export function Header() {
 
     if (location.pathname !== '/') {
       navigate('/');
-      setTimeout(performScroll, 300);
+      setTimeout(performScroll, 100);
     } else {
       performScroll();
     }
@@ -71,19 +72,18 @@ export function Header() {
     }
   };
 
-  const currentLanguage = i18n.language.split('-')[0];
-
   const commonButtonStyle = {
     color: 'text.primary',
     fontWeight: 800,
     textTransform: 'none',
     fontSize: '1rem',
+    height: 40,
     '&:hover': { color: 'primary.main', bgcolor: 'transparent' }
   };
 
   return (
     <>
-      <AppBar position="sticky" sx={{width: '100%', bgcolor: theme.palette.mode === 'dark' ? 'black' : 'white', zIndex: 1400}}>
+      <AppBar position="sticky" sx={{width: '100%', bgcolor: theme.palette.mode === 'dark' ? 'black' : 'white', zIndex: 1400, boxShadow: '0 1px 20px #8400ff'}}>
         <Toolbar sx={{ px: { xs: 2, md: 8 }, height: '80px', display: 'flex', justifyContent: 'space-between' }}>
           
           {/* LOGO */}
@@ -103,7 +103,7 @@ export function Header() {
 
             {isLoggedIn ? (
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                <Button component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap size={18} />} sx={{ fontWeight: 800, color: 'text.primary', textTransform: 'none', px: 2, bgcolor: 'action.hover', borderRadius: '12px' }}>
+                <Button component={RouterLink} to="/dashboards/student" startIcon={<GraduationCap size={18} />} sx={{ fontWeight: 800, color: 'text.primary', textTransform: 'none', px: 2, height: 40, bgcolor: 'action.hover', borderRadius: '12px' }}>
                   {t('dashboard.my_progress')}
                 </Button>
               </Stack>
@@ -111,14 +111,7 @@ export function Header() {
               <Button onClick={() => navigate('/dashboards/student')} sx={commonButtonStyle}>{t('auth.access')}</Button>
             )}
 
-            <Stack direction="row" sx={{ bgcolor: 'action.hover', borderRadius: '12px', p: 0.5, gap: 0.5 }}>
-              {['ca', 'es', 'en'].map((lng) => (
-                <Button key={lng} onClick={() => i18n.changeLanguage(lng)} sx={{ minWidth: '40px', fontSize: '0.75rem', fontWeight: 800, borderRadius: '10px', color: currentLanguage === lng ? '#fff' : 'text.secondary', bgcolor: currentLanguage === lng ? 'primary.main' : 'transparent' }}>
-                  {lng.toUpperCase()}
-                </Button>
-              ))}
-            </Stack>
-
+            <LanguageSwitcher />
             <ThemeToggleButton />
           </Box>
 
@@ -141,13 +134,7 @@ export function Header() {
               {/* 1. Language */}
               <Box sx={{ textAlign: 'center' }}>
                 <Typography variant="caption" sx={{ display: 'block', mb: 1.5, fontWeight: 700, color: 'text.secondary', letterSpacing: '1px' }}>{t('')?.toUpperCase()}</Typography>
-                <Stack direction="row" spacing={1} sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: '12px' }}>
-                  {['ca', 'es', 'en'].map((lng) => (
-                    <Button key={lng} size="small" onClick={() => i18n.changeLanguage(lng)} sx={{minWidth: '70px', fontWeight: 800, borderRadius: '10px', color: currentLanguage === lng ? '#fff' : 'text.secondary', bgcolor: currentLanguage === lng ? 'primary.main' : 'transparent'}}>
-                      {lng.toUpperCase()}
-                    </Button>
-                  ))}
-                </Stack>
+                <LanguageSwitcher />
               </Box>
 
               <Divider sx={{ width: '100%', opacity: 0.1 }} />

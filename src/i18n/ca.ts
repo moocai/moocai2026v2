@@ -81,7 +81,7 @@ export default {
     telegram: "Telegram"
   },
 
-  course: {by: "by", enroll: "inscriure's al curs"},
+  course: {by: "by", enroll: "Veure temari del curs"},
   common: {error_loading: "Error en carregar les dades"},
 
   notifications: {
@@ -98,7 +98,7 @@ export default {
   lesson: {
     syllabus: "Temari",
     laboratory: "Laboratori",
-    academy: "Home",
+    academy: "Tornar a Home",
     course_not_found: "Curs no trobat",
     explanation: "Explicació",
     your_challenge: "El teu repte",
@@ -108,7 +108,7 @@ export default {
     back: "Tornar al prompt",
     lessons: "Lliçons",
     objective: "Anunciat",
-    run: "EXECUTAR",
+    run: "ENVIAR",
     debug_console: "CONSOLA DE DEBUG",
     lesson_completed: "LLIÇÓ COMPLETADA!",
     save: "GUARDAR",

@@ -85,7 +85,7 @@ export default {
   },
   course: {
     by: "by",
-    enroll: "inscribir-se al curso"
+    enroll: "Ver temario del curso"
   },
   common: {
     error_loading: "Error al cargar los datos"
@@ -114,7 +114,7 @@ export default {
     back: "Volver",
     lessons: "Lecciones",
     objective: "Anunciado",
-    run: "EJECUTAR",
+    run: "ENVIAR",
     debug_console: "CONSOLA DE DEBUG",
     lesson_completed: "LECCIÓN COMPLETADA!",
     save: "GUARDAR",

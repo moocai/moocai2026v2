@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { courseService } from '../services/courseService';
 import { students as localStudents } from '../data/students';
+import { useThemeMode } from '../hooks/useTheme';
 
 interface TypewriterProps {words: string[];}
 
@@ -29,6 +30,7 @@ const Typewriter = ({ words }: TypewriterProps) => {
 export default function Hero() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const getStudentCount = useCallback(() => {
     const local = JSON.parse(localStorage.getItem('mooc_local_students') || '[]');
@@ -60,8 +62,8 @@ export default function Hero() {
   return (
     <Box component="section" sx={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, overflow: 'hidden', bgcolor: 'background.default', px: 2 }}>
       
-      {/* FONS DE PARTÍCULES */}
-      <Box sx={{ position: 'absolute', inset: 0, zIndex: -1 }}><ParticlesBackground /></Box>
+      {/* FONS DE PARTÍCULES — només en mode fancy */}
+      {mode === 'fancy' && <Box sx={{ position: 'absolute', inset: 0, zIndex: -1 }}><ParticlesBackground /></Box>}
 
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 10, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', py: { xs: 8, md: 15 }}}>
         <Box component={motion.div} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>

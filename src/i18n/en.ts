@@ -83,7 +83,7 @@ export default {
     copyright: "MOOC REACT • BARCELONA",
     telegram: "Telegram"
   },
-  course: {by: "by", enroll: "Subscribe Course"},
+  course: {by: "by", enroll: "View course syllabus"},
   common: {error_loading: "Error loading data"},
   
   notifications: {
@@ -110,7 +110,7 @@ export default {
     back: "Back",
     lessons: "Lessons",
     objective: "Announced",
-    run: "RUN",
+    run: "SEND",
     debug_console: "DEBUG CONSOLE",
     lesson_completed: "LESSON COMPLETED!",
     save: "SAVE",
