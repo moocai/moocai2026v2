@@ -22,7 +22,7 @@ export default {
     create_teacher_title: "Nuevo Profesor",
     name_label: "Nombre completo",
     email_label: "Correo electrónico",
-    pin_label: "Contraseña (4 digitos)",
+    pin_label: "Contraseña (10 digitos)",
     register_btn: "Registrar Alumno",
     reset_course_confirm: "¿Estás seguro de que quieres reiniciar el progreso de este curso?",
     reset_course_tooltip: "Reiniciar curso",

@@ -13,7 +13,6 @@ import {ProgressOverview} from '../../features/student/ProgressOverview';
 import {CourseCard} from '../../features/student/CourseCard';
 import {RankingCard} from '../../features/student/RankingCard';
 import {ScrollIndicator} from '../../features/student/ScrollIndicator';
-import { courseService } from '../../services/courseService';
 import { students as baseStudents } from '../../data/students';
 
 export default function StudentDashboard() {
@@ -24,7 +23,7 @@ export default function StudentDashboard() {
   const [actionLoading, setActionLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [allCourses] = useState<Course[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [dbProgress, setDbProgress] = useState<Record<string, boolean>>(
     () => JSON.parse(localStorage.getItem('mooc_global_progress') || '{}')
@@ -68,36 +67,13 @@ export default function StudentDashboard() {
       try {
         if (isInitial) setLoading(true);
         if (!mounted) return;
-        const coursesFromApi = await courseService.getAllCourses();
-        const publicCourse = coursesFromApi.find(c => c.slug === 'python-public-test');
-        if (publicCourse) {
-          const apiTopics = await courseService.getCourseTopics(publicCourse.slug!);
-          const topics: Topic[] = await Promise.all(
-            apiTopics.map(async (topic) => {
-              const problems = await courseService.getTopicProblems(publicCourse.slug!, topic.slug);
-              return {
-                title: topic.name,
-                lessons: problems.map((p) => ({
-                  id: p.slug,
-                  title: p.title,
-                  theoryInstructions: p.statement_ca || p.statementHtml,
-                  challenge: p.statement_ca || p.statementHtml,
-                })),
-              };
-            }),
-          );
-          setAllCourses([{ ...publicCourse, topics }]);
-        } else {
-          setAllCourses(coursesFromApi);
-        }
         const localStudents = JSON.parse(localStorage.getItem('mooc_local_students') || '[]');
         const deletedIds = JSON.parse(localStorage.getItem('mooc_deleted_ids') || '[]');
         const merged = [...baseStudents, ...localStudents].filter(s => !deletedIds.includes(s.id)); setStudents(merged);
         const saved = localStorage.getItem('currentStudent');
         if (saved) {const parsed = JSON.parse(saved); setSelectedStudent(parsed); await fetchProgress(parsed.id);}
       } catch (err) {
-        console.error("Error carregant el curs de l'API:", err);
-        setGlobalError('Error loading data');
+        console.error("Error carregant usuaris:", err);
       } finally {
         if (isInitial) setLoading(false);
       }

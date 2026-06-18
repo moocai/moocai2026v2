@@ -22,7 +22,7 @@ export default {
     create_teacher_title: "New Teacher",
     name_label: "Full name",
     email_label: "Email address",
-    pin_label: "Password (4 digits)",
+    pin_label: "Password (10 digits)",
     register_btn: "Register Student",
     reset_course_confirm: "Are you sure you want to reset the progress of this course?",
     reset_course_tooltip: "Reset course",

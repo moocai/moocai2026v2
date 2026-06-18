@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Box, Typography, Button, IconButton, CircularProgress, useTheme, useMediaQuery, alpha } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import { exercises as localExercises } from '../../../../data/exercises';
 import { courseService } from '../../../../services/courseService';
 
 // Tipus per a suportar multiidioma (ca, es, en)
@@ -54,7 +53,6 @@ export default function LessonTopic() {
 
   const course = useMemo(() => apiData?.courses?.find((c) => c.id === courseId), [apiData, courseId]);
   const lesson = useMemo(() => course?.content?.find((l) => l.id === lessonId), [course, lessonId]);
-  const exercise = useMemo(() => localExercises.find(e => e.id === lessonId && e.courseId === courseId), [lessonId, courseId]);
   const currentIndex = useMemo(() => course?.content?.findIndex((l) => l.id === lessonId) ?? -1, [course, lessonId]);
   const goToLesson = (index: number) => {if (!course?.content?.[index]) return; navigate(`/courses/${courseId}/${course.content[index].id}/topic`);};
   if (loading) return (<Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}><CircularProgress color="secondary" /></Box>);
@@ -150,10 +148,10 @@ export default function LessonTopic() {
                 {t('lesson.your_challenge')}
               </Typography>
               <Typography sx={{ fontSize: '1rem', fontWeight: 600, fontFamily: 'monospace', color: 'text.primary' }}>
-                {getText(exercise?.challengeShort) || getText(exercise?.challenge) || getText(lesson.challenge)}
+                {getText(lesson.challenge)}
               </Typography>
             </Box>
-            {exercise && (
+            {lesson.challenge && (
               <Box sx={{ mt: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), borderRadius: 2, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.15), maxWidth: '500px' }}>
                 <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5, color: 'text.secondary' }}>
                   {t('lesson.objective')}
