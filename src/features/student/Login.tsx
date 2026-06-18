@@ -90,7 +90,7 @@ export function Login({
 
                 <TextField fullWidth label={t('dashboard.name_label')} variant="filled" value={newName} onChange={e => onNewNameChange(e.target.value)} required sx={{ '& .MuiInputBase-root': { bgcolor: 'action.hover', borderRadius: '12px' } }} />
                 <TextField fullWidth label={t('dashboard.email_label')} variant="filled" value={newEmail} onChange={e => onNewEmailChange(e.target.value)} required sx={{ '& .MuiInputBase-root': { bgcolor: 'action.hover', borderRadius: '12px' } }} />
-                <TextField fullWidth label={t('dashboard.pin_label')} variant="filled" type="password" value={newPin} onChange={e => onNewPinChange(e.target.value)} required slotProps={{ htmlInput: { maxLength: 4 } }} sx={{ '& .MuiInputBase-root': { bgcolor: 'action.hover', borderRadius: '12px' } }} />
+                <TextField fullWidth label={t('dashboard.pin_label')} variant="filled" type="password" value={newPin} onChange={e => onNewPinChange(e.target.value)} required slotProps={{ htmlInput: { maxLength: 20 } }} sx={{ '& .MuiInputBase-root': { bgcolor: 'action.hover', borderRadius: '12px' } }} />
 
                 <Button type="submit" variant="contained" fullWidth sx={{ borderRadius: '12px', py: 1.5, fontWeight: 800, boxShadow: 'none', '&:hover': { boxShadow: 'none' } }}>
                   {newRole === 'teacher' ? 'Registrar Professor' : 'Registrar Estudiant'}
