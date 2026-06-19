@@ -49,7 +49,7 @@ export function CourseCard({
           p: { xs: 2, md: 3 }, 
           cursor: 'default', 
           borderRadius: { xs: 1.5, md: 1 }, 
-          bgcolor: 'background.paper', 
+          bgcolor: theme.palette.mode === 'dark' ? '#1f2937' : 'white', 
           border: '1px solid', 
           borderColor: isExpanded ? 'primary.main' : (theme.palette.mode === 'dark' ? '#fff' : '#000'), 
           transition: '0.2s', 
@@ -58,8 +58,6 @@ export function CourseCard({
           position: 'relative', 
           zIndex: isExpanded ? 50 : 0, 
           width: '100%', 
-          opacity: course.disabled ? 0.5 : 1, 
-          filter: course.disabled ? 'grayscale(0.8)' : 'none',
           overflow: 'hidden' 
         }}
       >
@@ -95,7 +93,7 @@ export function CourseCard({
               <Typography variant="caption" sx={{ fontWeight: 600 }}>{t('dashboard.syllabus')}</Typography>
               <ChevronRight size={15} />
             </Box>
-            <Box component="button" type="button" onClick={(e) => {e.stopPropagation(); onToggle();}} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, cursor: 'pointer', bgcolor: 'transparent', border: '1px solid #8400ff', borderRadius: '8px', pl: 0.5, pr: 0.25, py: 0.25, color: 'text.secondary', width: 'fit-content', '&:hover': { opacity: 0.7 } }}>
+            <Box component="button" type="button" onClick={(e) => {e.stopPropagation(); onToggle();}} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, cursor: 'pointer', bgcolor: 'transparent', border: '1px solid #8400ff', borderRadius: '8px', pl: 0.5, pr: 0.25, py: 0.25, color: theme.palette.mode === 'light' ? '#000' : 'text.secondary', width: 'fit-content', '&:hover': { opacity: 0.7 } }}>
               <Typography variant="caption" sx={{ fontWeight: 600 }}>{t('dashboard.labs')}</Typography>
               <ChevronRight size={15} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: '0.3s'}} />
             </Box>

@@ -5,10 +5,12 @@ import CourseLessons from './pages/courses/CourseLessons';
 import LessonPage from './pages/courses/LessonPage';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import { MainLayout } from './layouts/MainLayout';
+import { useThemeMode } from './hooks/useTheme';
 
 function App() {
+  const { mode } = useThemeMode();
   return (
-    <Box sx={{bgcolor: 'background.default' }}>
+    <Box sx={{bgcolor: mode === 'fancy' ? 'transparent' : 'background.default' }}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route element={<MainLayout />}>

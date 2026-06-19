@@ -68,22 +68,26 @@ class Particle {
   }
 }
 
-export default function ParticlesBackground() {
+export default function ParticlesBackground({ opacityMultiplier = 1 }: { opacityMultiplier?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
-  const colors = useMemo(() => ({
-    bg: isDark ? '#0a0a0a' : '#f5f5f5',
-    particle: isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
-    line: isDark ? '#ffffff' : '#000000',
-  }), [isDark]);
+  const colors = useMemo(() => {
+    const particleAlpha = Math.min(0.85 * opacityMultiplier, 1);
+    return {
+      bg: isDark ? '#0a0a0a' : '#f5f5f5',
+      particle: isDark ? `rgba(255, 255, 255, ${particleAlpha})` : `rgba(0, 0, 0, ${particleAlpha})`,
+      line: isDark ? '#ffffff' : '#000000',
+      lineAlpha: Math.min(0.4 * opacityMultiplier, 1),
+    };
+  }, [isDark, opacityMultiplier]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     let particlesArray: Particle[] = [];
@@ -121,7 +125,7 @@ export default function ParticlesBackground() {
           const distSq = dx * dx + dy * dy;
           if (distSq < CONNECT_DIST_SQ) {
             const distance = Math.sqrt(distSq);
-            context.globalAlpha = (1 - distance / CONNECT_DIST) * 0.4;
+            context.globalAlpha = (1 - distance / CONNECT_DIST) * colors.lineAlpha;
             context.beginPath();
             context.moveTo(ax, ay);
             context.lineTo(particlesArray[b].x, particlesArray[b].y);

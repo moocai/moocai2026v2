@@ -10,6 +10,8 @@ import { BookOpen, ChevronDown, ChevronRight, Code2, CheckCircle2, X, ChevronLef
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useCourse } from '../../hooks/useCourse';
+import {useThemeMode} from '../../hooks/useTheme';
+import ParticlesBackground from '../../components/ParticlesBackground';
 
 type I18nField = { ca: string; es: string; en: string };
 
@@ -18,6 +20,7 @@ export default function CourseLessons() {
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const { data: course, isLoading: loading } = useCourse(courseId);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lessonId') || null);
   const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
@@ -73,12 +76,13 @@ export default function CourseLessons() {
 
   return (
     <Box sx={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, bgcolor: 'background.default', overflow: 'hidden' }}>
+      {mode === 'fancy' && <ParticlesBackground opacityMultiplier={0.4} />}
       <Box sx={{ display: 'flex', height: '100%' }}>
         {/* LEFT SIDEBAR - Accordion Syllabus */}
         <Box sx={{
-          width: { md: '24%', lg: '22%', xl: '18%' },
+          width: { md: '24%', lg: '22%', xl: '18%'},
           minWidth: { md: 240, lg: 280 },
-          maxWidth: { md: 340, lg: 380, xl: 400 },
+          maxWidth: { md: 340, lg: 380, xl: 400},
           flexShrink: 0,
           borderRight: '1px solid',
           borderColor: 'divider',

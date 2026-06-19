@@ -15,7 +15,7 @@ export function StudentProfileCard({ student, totalPoints, actionLoading, onLogo
   const hoverBg = theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'action.hover';
 
   return (
-    <Card sx={{ p: { xs: 2, md: 4 }, borderRadius: { xs: 2, md: 1 }, textAlign: 'center', bgcolor: 'background.paper', position: 'relative', border: '1px solid', borderColor: 'primary.main' + '33', minWidth: 0, maxWidth: '280px', width: '100%', mt: { xs: '20px', md: '30px !important' }}}>
+    <Card sx={{ p: { xs: 2, md: 4 }, borderRadius: { xs: 2, md: 1 }, textAlign: 'center', bgcolor: theme.palette.mode === 'dark' ? '#1f2937' : 'white', position: 'relative', border: '1px solid', borderColor: 'primary.main' + '33', minWidth: 0, maxWidth: '280px', width: '100%', mt: { xs: '20px', md: '30px !important' }}}>
       {actionLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0 }} color="secondary" />}
       <Avatar sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, mx: 'auto', mb: 1, bgcolor: 'primary.main', fontWeight: 900, fontSize: { xs: '1rem', md: '2rem' } }}>{student.name.charAt(0)}</Avatar>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, minWidth: 0, flexWrap: 'wrap' }}>

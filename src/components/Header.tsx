@@ -8,11 +8,13 @@ import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './ThemeToggleButton';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { useThemeMode } from '../hooks/useTheme';
 const logo = '/img/logo.webp';
 
 export function Header() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
@@ -83,7 +85,7 @@ export function Header() {
 
   return (
     <>
-      <AppBar position="sticky" sx={{width: '100%', bgcolor: theme.palette.mode === 'dark' ? 'black' : 'white', zIndex: 1400, boxShadow: '0 1px 20px #8400ff'}}>
+      <AppBar position="sticky" sx={{width: '100%', bgcolor: mode === 'fancy' ? 'black' : mode === 'dark' ? '#1f2937' : 'white', zIndex: 1400, boxShadow: '0 1px 40px #8400ff'}}>
         <Toolbar sx={{ px: { xs: 2, md: 8 }, height: '80px', display: 'flex', justifyContent: 'space-between' }}>
           
           {/* LOGO */}

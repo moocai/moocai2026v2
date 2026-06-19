@@ -25,7 +25,7 @@ export function RankingCard({ courses, rankingTab, onRankingTabChange, rankedStu
         <Trophy size={22} color="#ffb700" />
         <Typography variant="h6" sx={{ fontWeight: 900 }}>{t('dashboard.ranking_title')}</Typography>
       </Stack>
-      <Card sx={{ borderRadius: { xs: 1, md: 1}, bgcolor: 'background.paper', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000', overflow: 'hidden', minWidth: 0, width: '100%'}}>
+      <Card sx={{ borderRadius: { xs: 1, md: 1}, bgcolor: theme.palette.mode === 'dark' ? '#1f2937' : 'white', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000', overflow: 'hidden', minWidth: 0, width: '100%'}}>
         <Tabs value={rankingTab} onChange={(_, val) => onRankingTabChange(val)} variant="scrollable" sx={{ bgcolor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'action.hover', '& .MuiTabs-indicator': { bgcolor: 'primary.main' }}}>
           {courses.map(c => <Tab key={c.id} label={getText(c.title)} sx={{ fontWeight: 800, textTransform: 'none', minWidth: 0, whiteSpace: 'nowrap',ml: { xs: 0, md: 15 }, fontSize: { xs: '0.7rem', md: '0.875rem' }}} />)}
         </Tabs>

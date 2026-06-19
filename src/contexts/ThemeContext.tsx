@@ -25,12 +25,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode);
+    if (mode === 'fancy') {
+      document.body.style.backgroundColor = 'transparent';
+    } else {
+      document.body.style.backgroundColor = '';
+    }
   }, [mode]);
 
   const setMode = (newMode: ThemeMode) => {
     setModeState(newMode);
     localStorage.setItem(STORAGE_KEY, newMode);
     document.documentElement.setAttribute('data-theme', newMode);
+    document.body.style.backgroundColor = newMode === 'fancy' ? 'transparent' : '';
   };
 
   // Circular rotation: light -> dark -> fancy -> light

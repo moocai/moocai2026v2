@@ -12,14 +12,16 @@ import {StudentProfileCard} from '../../features/student/StudentProfileCard';
 import {ProgressOverview} from '../../features/student/ProgressOverview';
 import {CourseCard} from '../../features/student/CourseCard';
 import {RankingCard} from '../../features/student/RankingCard';
-import {ScrollIndicator} from '../../features/student/ScrollIndicator';
 import { courseService } from '../../services/courseService';
 import { students as baseStudents } from '../../data/students';
+import {useThemeMode} from '../../hooks/useTheme';
+import ParticlesBackground from '../../components/ParticlesBackground';
 
 export default function StudentDashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
+  const { mode } = useThemeMode();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
@@ -214,13 +216,14 @@ export default function StudentDashboard() {
   }, [students, allCourses, rankingTab, getCourseProgress]);
 
   if (loading) return (
-    <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', zIndex: 9999 }}>
+    <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: mode === 'fancy' ? 'transparent' : 'background.default', zIndex: 9999 }}>
       <CircularProgress color="primary" />
     </Box>
   );
 
   return (
-       <Box sx={{ bgcolor: 'background.default', color: 'text.primary', width: '100%', maxWidth: '100vw', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+       <Box sx={{ position: 'relative', bgcolor: mode === 'fancy' ? 'transparent' : mode === 'dark' ? '#111827' : 'background.default', color: 'text.primary', width: '100%', maxWidth: '100vw', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {mode === 'fancy' && <ParticlesBackground opacityMultiplier={0.4} />}
        <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, px: { xs: 3, sm: 1.5, md: 8, lg: 8 }, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
          <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
@@ -255,8 +258,7 @@ export default function StudentDashboard() {
 
                   <Grid size={{ xs: 12, md: 9}} sx={{ mt: { xs: '20px', md: '50px' } }}>
                     {expandedCourse && (
-                        <Box
-                          onClick={() => setExpandedCourse(null)}
+                        <Box onClick={() => setExpandedCourse(null)}
                           sx={{ position: 'fixed', inset: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}
                         />
                       )}
@@ -279,10 +281,7 @@ export default function StudentDashboard() {
                           />
                         </Grid>
                       ))}
-                    </Grid>
-
-                    <ScrollIndicator />
-                    
+                    </Grid>                   
                     <RankingCard courses={allCourses} rankingTab={rankingTab} onRankingTabChange={setRankingTab} rankedStudents={rankedStudentsByCourse} getText={getText} getCoursePoints={getCoursePoints} getCourseProgress={getCourseProgress} selectedStudent={selectedStudent} allCourses={allCourses} />
                   </Grid>
                 </Grid>

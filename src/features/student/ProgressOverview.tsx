@@ -15,7 +15,7 @@ export function ProgressOverview({ courses, getText, getCourseProgress, studentI
   const hoverBg = theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'action.hover';
 
   return (
-    <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: { xs: 2, md: 1 }, bgcolor: 'background.paper', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000', display: { xs: 'none', md: 'block' }, maxWidth: '280px', width: '100%', mt: { xs: 0, md: '-105px !important' } }}>
+    <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: { xs: 2, md: 1 }, bgcolor: theme.palette.mode === 'dark' ? '#1f2937' : 'white', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#fff' : '#000', display: { xs: 'none', md: 'block' }, maxWidth: '280px', width: '100%', mt: { xs: 0, md: '-105px !important' } }}>
       <Typography variant="subtitle1" sx={{ fontWeight: 900, mb: 2 }}>{t('dashboard.progress_detail')}</Typography>
       <Stack spacing={2}>
         {courses.map(course => (

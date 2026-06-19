@@ -12,7 +12,7 @@ export function getTheme(mode: ThemeMode): Theme {
         ? {
             primary: { main: '#8400ff' },
             secondary: { main: '#ec4899' },
-            background: { default: '#141414', paper: '#141414' },
+            background: { default: '#111827', paper: ' #1f2937' },
           }
         : mode === 'fancy'
           ? {

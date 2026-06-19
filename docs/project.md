@@ -190,11 +190,11 @@ QueryClientProvider
 
 | Fitxer | Exportacions | Funcions clau |
 |--------|-------------|---------------|
-| `Header.tsx` | `Header` | scrollToDynamic, handleLogout, checkAuth, menú mòbil overlay amb AnimatePresence. Botó "My Progress": bgcolor `action.hover` en dark, `alpha(primary, 0.08)` en light |
+| `Header.tsx` | `Header` | scrollToDynamic, handleLogout, checkAuth, menú mòbil overlay amb AnimatePresence. Botó "My Progress": bgcolor `action.hover` en dark, `alpha(primary, 0.08)` en light. AppBar bgcolor per mode: fancy → `black`, dark → `#1f2937`, light → `white` (via `useThemeMode`) |
 | `Hero.tsx` | (default) | Typewriter animat (4 paraules), stats dinàmiques (recompte estudiants via localStorage + event studentsUpdated), scroll chevrons |
 | `Footer.tsx` | `Footer` | FooterLink intern, any dinàmic, 4 columnes (logo, explore, community, connect) |
 | `CourseCard.tsx` | `CourseCard` | handleEnroll, getLocalizedText, disabled overlay "PROPERAMENT", motion animations, hover prefetch |
-| `ParticlesBackground.tsx` | (default) | Classe Particle (draw/update), connect, detecció dark/light mode |
+| `ParticlesBackground.tsx` | (default) | Classe Particle (draw/update), connect, detecció dark/light mode. Accepta prop `opacityMultiplier` (default 1) que escala l'opacitat de partícules i línies. `{ alpha: true }` al context 2D |
 | `ThemeToggleButton.tsx` | `ThemeToggleButton` | Alterna modes light → dark → fancy (Sun/Moon/Sparkles icons) |
 | `LanguageSwitcher.tsx` | `LanguageSwitcher` | Canvia idioma via i18n.changeLanguage |
 
@@ -219,7 +219,7 @@ QueryClientProvider
 
 **Notes:**
 - Tots els contextos usen `use(Context)` de React 19 (en lloc de `useContext`)
-- ThemeContext renderitza `ParticlesBackground` en mode fancy
+- ThemeContext renderitza `ParticlesBackground` en mode fancy. En mode fancy, també sobreescriu `document.body.style.backgroundColor = 'transparent'` per evitar que CssBaseline el tapin
 - I18nContext importa `i18n` des de `src/i18n.ts`
 - Tots persisteixen a localStorage: `mooc-theme-mode`, `mooc-language`, `token`, `currentStudent`
 
@@ -230,13 +230,13 @@ QueryClientProvider
 | `types.ts` | `Student`, `Lesson`, `Topic`, `Course` | Interfícies del mòdul student |
 | `Login.tsx` | `Login` | Role toggle (student/teacher), create-user, grid StudentCards (rep students com a prop) |
 | `StudentCard.tsx` | `StudentCard` | Login per PIN, delete confirmation amb animació error shake |
-| `StudentProfileCard.tsx` | `StudentProfileCard` | Avatar + nom + punts + logout, LinearProgress loading bar |
-| `CourseCard.tsx` | `CourseCard` | Card dashboard expansible amb disabled overlay |
+| `StudentProfileCard.tsx` | `StudentProfileCard` | Avatar + nom + punts + logout, LinearProgress loading bar. bgcolor: dark → `#1f2937`, light → `white` |
+| `CourseCard.tsx` | `CourseCard` | Card dashboard expansible amb disabled overlay. bgcolor: dark → `#1f2937`, light → `white` |
 | `CourseExpandedContent.tsx` | `CourseExpandedContent` | Tabs syllabus/activities, llista lliçons amb icones (BookOpen, CheckCircle, PlayCircle) |
 | `CourseIcon.tsx` | `CourseIcon` | Icona Lucide (Terminal, Globe, Cpu, Layers, Database, Code2) per nom de curs |
-| `ProgressOverview.tsx` | `ProgressOverview` | Barres LinearProgress per curs amb percentatge |
-| `RankingCard.tsx` | `RankingCard` | Tabs per curs, llistat ordenat per progrés, usuari actiu destacat, Trophy icons |
-| `ScrollIndicator.tsx` | `ScrollIndicator` | 3 chevrons animats (només mòbil) |
+| `ProgressOverview.tsx` | `ProgressOverview` | Barres LinearProgress per curs amb percentatge. bgcolor: dark → `#1f2937`, light → `white` |
+| `RankingCard.tsx` | `RankingCard` | Tabs per curs, llistat ordenat per progrés, usuari actiu destacat, Trophy icons. bgcolor: dark → `#1f2937`, light → `white` |
+| `ScrollIndicator.tsx` | `ScrollIndicator` | 3 chevrons animats (només mòbil) — **no importat actualment** |
 
 ### Features Teacher (`src/features/teacher/`)
 
@@ -291,6 +291,9 @@ TOTS ELS FITXERS estan BUITS: `ChatWidget.tsx`, `CourseForm.tsx`, `ExerciseEdito
 - Dispara `studentsUpdated` event en crear/eliminar usuaris (per sincronitzar Hero)
 - Passa `students` com a prop a `Login`
 - Layout: `height: 100%` dins del flex container de MainLayout, sense scroll vertical/horitzontal
+- **Colors per mode dark**: fons `#111827`, cards amb `#1f2937` (via nested MuiThemeProvider que sobreescriu `background.paper`)
+- **Mode fancy**: fons transparent + `<ParticlesBackground opacityMultiplier={0.4} />`
+- Eliminat `ScrollIndicator` (no s'usava)
 
 ---
 
@@ -462,7 +465,7 @@ npm run preview      # Previsualitzar build
 | Border radius | 12 (buttons), 16 (cards) |
 | textTransform | 'none' (MuiButton) |
 
-3 modes: `light`, `dark`, `fancy` (fancy = dark + ParticlesBackground + text colors #e4e4e4)
+3 modes: `light`, `dark`, `fancy` (fancy = dark + ParticlesBackground + text colors #e4e4e4). En mode fancy, ThemeContext sobreescriu `document.body.style.backgroundColor = 'transparent'` per evitar que CssBaseline tapin les partícules. StudentDashboard usa un MuiThemeProvider niu que sobreescriu `background.paper` a `#1f2937` en mode dark.
 
 ---
 
@@ -501,6 +504,9 @@ npm run preview      # Previsualitzar build
 - Scrollbar estilitzada
 - Spinners fullscreen (fixed, inset:0, zIndex:9999)
 - Header "My Progress" bgcolor adaptatiu: `action.hover` en dark, `alpha(primary, 0.08)` en light
+- Esquema de colors per mode dark al dashboard: fons `#111827`, cards `#1f2937`; mode fancy: fons transparent amb partícules; mode light: fons/blancs per defecte
+- Header AppBar bgcolor per mode: fancy → `black`, dark → `#1f2937`, light → `white`
+- `ParticlesBackground` accepta prop `opacityMultiplier` per controlar opacitat per instància
 
 ### ❌ Per Implementar
 - Pàgines teacher: `Courses.tsx`, `Dashboard.tsx`, `Exercises.tsx`, `Students.tsx`
@@ -515,7 +521,7 @@ npm run preview      # Previsualitzar build
 - `courseService.ts` NO té fallback a `data/courses.ts` — error si API no disponible
 - `src/i18n/index.ts` és duplicat de `src/i18n.ts` i no s'importa (deixat de migració)
 - `src/App.css` existeix però no s'importa
-- Inconsistència color de fons: MUI theme `#141414` vs ParticlesBackground `#0a0a0a` vs scrollbar `#0a0a0a`
+- Inconsistència color de fons: MUI theme `#141414` vs ParticlesBackground `#0a0a0a` vs scrollbar `#0a0a0a`. **Parcialment resolt**: en mode fancy, `body` i wrapper `App` es posen `transparent` perquè es vegi el canvas. El dark mode del dashboard usa `#111827` (fons) i `#1f2937` (cards)
 - `"react-is": "19.0.0"` override a package.json per compatibilitat MUI v9
 - `Hero.tsx` mostra recompte dinàmic d'estudiants (escolta event `studentsUpdated`)
 - `Login.tsx` rep `students` com a prop (no fusiona internament)

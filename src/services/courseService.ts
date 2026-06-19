@@ -10,7 +10,7 @@ const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'https://algorien.
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  timeout: 30000,
 });
 
 apiClient.interceptors.request.use((config) => {

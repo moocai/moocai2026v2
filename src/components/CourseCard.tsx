@@ -39,16 +39,11 @@ export function CourseCard({ course, index }: CourseCardProps) {
       <Card onMouseEnter={() => prefetchCourse(queryClient, course.id)} sx={{height: '100%', width: {xs: '85%', md: '100%'}, mx: {xs: 'auto', md: 'unset'},display: 'flex',borderColor: theme.palette.mode === 'dark' ? '#8400ff' : 'black', flexDirection: 'column', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', overflow: 'hidden', opacity: course.disabled ? 0.7 : 1, filter: course.disabled ? 'grayscale(0)' : 'none', '&:hover': course.disabled ? {} : {transform: { xs: 'none', md: 'translateY(-15px)' }, boxShadow: '0 0 10px 10px ' + theme.palette.primary.main + '40', borderColor: theme.palette.mode === 'dark' ? '#ffffff' : '#8400ff',bgcolor: theme.palette.mode === 'dark' ? '#fffff' : 'rgba(0,0,0,0.02)',},}}>
 
           <Box sx={{ p: { xs: 1.5, md: 2 }, pb: 0 }}>
-            <Box sx={{position: 'relative', height: {xs: '120px', md: '180px'}, width: '100%',borderRadius: 1, overflow: 'hidden',background: 'linear-gradient(135deg, ' + theme.palette.primary.main + '26 0%, ' + theme.palette.secondary?.main + '33 100%)', display: 'flex',alignItems: 'center', justifyContent: 'center', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#8400ff' : 'black'}}>
-              {course.disabled && (
-                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, bgcolor: '#8400ff', color: 'white', px: 1.5, py: 0.5, borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  PROPERAMENT
-                </Box>
-              )}
+            <Box sx={{position: 'relative', height: {xs: '120px', md: '180px'}, width: '100%',borderRadius: 1, overflow: 'hidden',background: 'linear-gradient(135deg, ' + theme.palette.primary.main + '26 0%, ' + theme.palette.secondary?.main + '33 100%)', display: 'flex',alignItems: 'center', justifyContent: 'center', border: '1px solid', borderColor: theme.palette.mode === 'dark' ? '#8400ff' : 'black'}}>         
               <motion.div whileHover={{ scale: 1.05, rotate: 2 }} transition={{ type: "spring", stiffness: 300 }}>
                 <Box
                   component="img" src={course.image || courseImages[course.slug || course.id] || ''} alt={getLocalizedText(course.title, lang)}
-                  sx={{width: { xs: logoW * 0.65, md: logoW },height: { xs: logoH * 0.65, md: logoH }, objectFit: 'contain',filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3)) brightness(1.1)'}}/>
+                  sx={{width: { xs: logoW * 0.65, md: logoW },height: { xs: logoH * 0.65, md: logoH }, objectFit: 'contain'}}/>
               </motion.div>
             </Box>
           </Box>
