@@ -24,9 +24,9 @@
 | **Confetti** | canvas-confetti | ^1.9.2 | Animació en completar lliçons |
 | **React Compiler** | babel-plugin-react-compiler | ^1.0.0 | Optimització React 19 |
 | **Markdown** | react-markdown + remark-gfm | ^10.1.0 / ^4.0.1 | Renderitzat Markdown |
-| **Util** | clsx, class-variance-authority, tailwind-merge | ^2.1.1 / ^0.7.1 / ^3.5.0 | Classes condicionals |
+| **Util** | clsx, class-variance-authority, tailwind-merge, tailwindcss-animate, tw-animate-css | ^2.1.1 / ^0.7.1 / ^3.5.0 / ^1.0.7 / ^1.4.0 | Classes condicionals |
 | **Tipus** | TypeScript | ^5.5.0 | Tipat estàtic |
-| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss | ^5.2.0 / ^8.4.0 / ^10.4.0 / ^3.4.0 | Configuració build |
+| **Dev** | @vitejs/plugin-react, postcss, autoprefixer, tailwindcss, @types/node, @types/canvas-confetti | ^5.2.0 / ^8.4.0 / ^10.4.0 / ^3.4.0 / ^25.6.0 / ^1.6.0 | Configuració build |
 
 ---
 
@@ -38,7 +38,6 @@ mooc-2026-vite/
 ├── package.json                      # Dependències i scripts (dev, build, preview)
 ├── vite.config.ts                    # Vite config: @ alias, proxy /api → algorien.com, polling
 ├── tsconfig.json                     # TypeScript strict, @/* path alias, JSX react-jsx
-├── env.d.ts → src/env.d.ts           # (redirect) Declaracions tipus fitxers estàtics
 ├── vite-env.d.ts                     # Vite client types
 │
 ├── dist/                             # Producció build output
@@ -47,7 +46,8 @@ mooc-2026-vite/
 │   ├── project.md                    # Documentació del projecte
 │   ├── react19.md                    # Audit migració React 19
 │   ├── ReactQuery.md                 # Anàlisi React Query
-│   └── spring3.md                    # Proposta Sprint 3
+│   ├── spring3.md                    # Proposta Sprint 3
+│   └── apis.md                       # API Reference
 │
 ├── public/
 │   ├── img/                          # Logo, favicon, SVGs dels cursos
@@ -60,6 +60,7 @@ mooc-2026-vite/
     ├── App.css                       # (No importat - legacy)
     ├── index.css                     # Scrollbar styling
     ├── i18n.ts                       # Configuració i18next (importat per I18nContext)
+    ├── env.d.ts                     # Declaracions tipus fitxers estàtics
     │
     ├── components/                   # Components reutilitzables
     │   ├── Header.tsx                # Nav sticky amb menú mòbil overlay
