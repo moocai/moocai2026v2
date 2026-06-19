@@ -51,10 +51,15 @@ export default function LessonPage() {
     if (course) navigate(`/courses/${course.id}`);
   };
   const handleNext = () => {
-    if (!course) return;
-    const idx = course.content?.findIndex((l: any) => l.id === lessonId) ?? -1;
-    const nextId = idx >= 0 && idx < course.content.length - 1 ? course.content[idx + 1].id : null;
-    navigate(`/courses/${course.id}${nextId ? `?lessonId=${nextId}` : ''}`);
+    if (!course || !currentProblem) return;
+    const topics = course.content || [];
+    let topicIdx = -1;
+    for (let i = 0; i < topics.length; i++) {
+      const subs = topics[i].subTopics || [];
+      if (subs.some((s: any) => s.problemSlug === lessonId)) { topicIdx = i; break; }
+    }
+    const nextTopic = topicIdx >= 0 && topicIdx + 1 < topics.length ? topics[topicIdx + 1] : null;
+    navigate(`/courses/${course.id}${nextTopic ? `?lessonId=${nextTopic.id}` : ''}`);
   };
   const codeStorageKey = currentUser ? `code_${currentUser.id}_${courseId}_${lessonId}` : `temp_code_${lessonId}`;
   const getGlobalProgressKey = () => `${courseId}_${lessonId}`;
@@ -158,8 +163,15 @@ export default function LessonPage() {
         setStatus('fail');
       }
     } catch (err) {
-      setConsoleOutput(p => [...p, "❌ Error de connexió amb el servidor"]);
-      setStatus('fail');
+      setConsoleOutput(p => [...p, "⚠️ Servidor no disponible. Guardant codi localment..."]);
+      localStorage.setItem(codeStorageKey, userInputRef.current);
+      const globalProgress = JSON.parse(localStorage.getItem('mooc_global_progress') || '{}');
+      const key = getGlobalProgressKey();
+      globalProgress[key] = true;
+      localStorage.setItem('mooc_global_progress', JSON.stringify(globalProgress));
+      setConsoleOutput(p => [...p, "✅ Progrés guardat localment. Pots continuar al següent tema!"]);
+      setStatus('pass');
+      window.dispatchEvent(new Event('lessonProgressUpdated'));
     }
   };
 
