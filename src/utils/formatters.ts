@@ -44,3 +44,17 @@ export function formatTimestamp(timestamp: number, locale: string = 'ca'): strin
 export function makeProgressKey(courseId: string, lessonId: string): string {
   return `${courseId}_${lessonId}`;
 }
+
+export function formatearFecha(fecha: string): string {
+  return new Date(fecha).toLocaleDateString();
+}
+
+export function formatearNota(nota: number): string {
+  return `${nota.toFixed(1)}/10`;
+}
+
+export function calcularColorProgreso(valor: number): string {
+  if (valor >= 80) return '#22c55e';
+  if (valor >= 50) return '#eab308';
+  return '#ef4444';
+}

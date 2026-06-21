@@ -1,4 +1,6 @@
 import { Chip, SxProps, Theme } from '@mui/material';
+import type { Estado } from '../../types';
+
 interface BadgeProps {children: string; className?: string; mode?: 'standard' | 'outline'; sx?: SxProps<Theme>;}
 
 export function Badge({ children, mode = 'standard', className, sx }: BadgeProps) {
@@ -10,4 +12,15 @@ export function Badge({ children, mode = 'standard', className, sx }: BadgeProps
       }}
     />
   );
+}
+
+const estadoColors: Record<Estado, 'success' | 'warning' | 'info' | 'error'> = {
+  activo: 'success',
+  inactivo: 'warning',
+  completado: 'info',
+  bloqueado: 'error',
+};
+
+export function BadgeEstado({ estado }: { estado: Estado }) {
+  return <Chip label={estado} color={estadoColors[estado]} size="small" sx={{ fontWeight: 600, textTransform: 'capitalize' }} />;
 }

@@ -159,6 +159,7 @@ export default function StudentDashboard() {
       if (typeof fetchProgress === 'function') {
         fetchProgress(student.id);
       }
+      window.dispatchEvent(new Event('auth-state-change'));
     }
   };
 

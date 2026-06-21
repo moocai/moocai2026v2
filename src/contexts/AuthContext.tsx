@@ -53,12 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await authService.login(credentials);
     setUser(data.user);
     setToken(data.token);
+    window.dispatchEvent(new Event('auth-state-change'));
   };
 
   const logout = async () => {
     await authService.logout();
     setUser(null);
     setToken(null);
+    window.dispatchEvent(new Event('auth-state-change'));
   };
 
   return (
