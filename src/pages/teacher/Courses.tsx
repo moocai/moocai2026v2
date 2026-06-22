@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, Card, CardContent, Chip, Stack, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTranslation } from 'react-i18next';
 import { CourseForm } from '../../features/teacher/CourseForm';
 import { courseService } from '../../services/courseService';
@@ -21,6 +23,7 @@ function toCurso(c: any): Curso {
 
 export default function Courses() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +55,12 @@ export default function Courses() {
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>{curso.nombre}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{curso.descripcion}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>{curso.duracion} · {curso.totalEstudiantes} estudiantes</Typography>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1.5, alignItems: 'center' }}>
+                      <Typography variant="caption" color="text.secondary">{curso.duracion}{curso.duracion ? ' · ' : ''}{curso.totalEstudiantes} estudiantes</Typography>
+                      <Button size="small" variant="outlined" startIcon={<VisibilityIcon />} onClick={() => navigate(`/courses/${curso.id}`)} sx={{ textTransform: 'none', borderRadius: 2 }}>
+                        Ver Lecciones
+                      </Button>
+                    </Stack>
                   </Box>
                   <Chip label={curso.estado} color={estadoColor[curso.estado]} size="small" />
                 </Stack>
