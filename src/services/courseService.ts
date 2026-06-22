@@ -4,8 +4,8 @@ import { Course } from '../types';
 /* ------------------------------------------------------------------ */
 /* Configuració d'URL (Blindada)                                     */
 /* ------------------------------------------------------------------ */
-// Utilitzem 'as any' per evitar l'error de TypeScript de "Property 'env' does not exist"
-const API_BASE_URL = (import.meta as any).env.DEV ? '' : (import.meta as any).env.VITE_API_URL || 'https://algorien.com';
+// @ts-ignore - Vite replaces import.meta.env statically at build time
+const API_BASE_URL = import.meta.env.DEV ? '' : import.meta.env.VITE_API_URL || 'https://algorien.com';
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
